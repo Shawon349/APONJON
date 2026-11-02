@@ -1,0 +1,438 @@
+{% extends 'base.html' %}
+
+{% block title %}কেস #{{ case.caseID }}: {{ case.fullName }} - আপনজন{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <div class="text-xs text-gray-500 mb-4 flex items-center justify-between flex-wrap gap-2">
+        <div class="flex items-center space-x-2">
+            <a href="{% url 'home' %}" class="hover:text-red-600">মূলপাতা</a>
+            <span>/</span>
+            <a href="{% url 'cases:case_list' %}" class="hover:text-red-600">নিখোঁজ তালিকা</a>
+            <span>/</span>
+            <span class="text-gray-900 font-bold">কেস #{{ case.caseID }}</span>
+        </div>
+        {% if is_owner or is_admin %}
+        <div class="flex items-center space-x-2">
+            <a href="{% url 'cases:case_edit' case.caseID %}" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1">
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>সম্পাদনা</span>
+            </a>
+            <a href="{% url 'cases:case_delete' case.caseID %}" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1" onclick="return confirm('আপনি কি নিশ্চিত যে পোস্টটি মুছে ফেলতে চান?')">
+                <i class="fa-solid fa-trash-can"></i>
+                <span>পোস্ট ডিলিট</span>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Pending Post Notice (Only visible to Admin or the Reporter) -->
+    {% if is_pending or case.caseStatus == 'PENDING' or case.verification.verifyStatus == 'PENDING' %}
+    <div class="bg-amber-400/90 text-slate-950 p-4 sm:p-5 rounded-3xl shadow-lg mb-6 border-2 border-amber-500 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center space-x-3.5">
+            <div class="w-12 h-12 bg-black/10 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0">
+                <i class="fa-solid fa-hourglass-half animate-pulse"></i>
+            </div>
+            <div>
+                <div class="text-[10px] uppercase tracking-widest font-black text-amber-950 bg-amber-300 px-2.5 py-0.5 rounded-full inline-block mb-1">
+                    অপেক্ষমাণ পোস্ট (Pending Review)
+                </div>
+                <h3 class="text-base sm:text-lg font-black text-slate-950">এই পোস্টটি এখনও অনুমোদনের অপেক্ষায় রয়েছে</h3>
+                <p class="text-xs text-slate-900 font-medium">সাধারণ ব্যবহারকারীদের কাছে এই পোস্টটি প্রদর্শিত হচ্ছে না। শুধুমাত্র সিস্টেম অ্যাডমিন ও রিপোর্টকারী এটি দেখতে পাচ্ছেন।</p>
+            </div>
+        </div>
+        {% if is_admin %}
+        <div class="flex items-center space-x-2 flex-shrink-0">
+            <form action="{% url 'verification:admin_approve_case' case.caseID %}" method="POST" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-4 py-2 rounded-xl shadow transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>অনুমোদন করুন</span>
+                </button>
+            </form>
+            <form action="{% url 'verification:admin_decline_case' case.caseID %}" method="POST" class="inline">
+                {% csrf_token %}
+                <button type="submit" onclick="return confirm('পোস্টটি বাতিল করতে চান?')" class="bg-red-700 hover:bg-red-800 text-white font-bold text-xs px-4 py-2 rounded-xl shadow transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-xmark"></i>
+                    <span>বাতিল</span>
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Golden 48 Hours Urgency Header Bar -->
+    <div class="bg-gradient-to-r {% if case.priority_tracker.urgencyLevel == 'CRITICAL' %}from-red-600 to-amber-600{% else %}from-slate-800 to-slate-900{% endif %} text-white p-5 sm:p-7 rounded-3xl shadow-lg mb-8 flex flex-col md:flex-row items-center justify-between">
+        <div class="flex items-center space-x-4 mb-3 md:mb-0">
+            <div class="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-3xl font-bold">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <div>
+                <div class="text-xs uppercase tracking-wider font-black text-amber-200">
+                    {% if case.priority_tracker.urgencyLevel == 'CRITICAL' %}
+                    জরুরী সর্বোচ্চ ঝুঁকি (শিশু / প্রবীণ / নারী / অসুস্থ)
+                    {% elif case.priority_tracker.urgencyLevel == 'HIGH' %}
+                    উচ্চ অগ্রাধিকার (নারী / তরুণ / জরুরী চিকিৎসা)
+                    {% else %}
+                    স্ট্যান্ডার্ড অনুসন্ধান
+                    {% endif %}
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-black">নিখোঁজ: {{ case.fullName }}</h1>
+                <p class="text-xs text-white/90 font-medium">সর্বশেষ দেখা: {{ case.lastSeenTime|date:"F d, Y h:i A" }} ({{ case.lastSeenTime|timesince }} আগে)</p>
+            </div>
+        </div>
+
+        {% if case.caseStatus == 'SEARCHING' or case.caseStatus == 'SIGHTED' %}
+        <div class="bg-black/35 backdrop-blur px-6 py-3.5 rounded-2xl border border-white/20 text-center">
+            <div class="text-[10px] text-amber-300 uppercase tracking-widest font-black">প্রথম ৪৮ ঘণ্টার সুবর্ণ সময়</div>
+            <div class="text-2xl font-black font-mono text-white">
+                {{ hours_remaining }} <span class="text-xs font-normal">ঘণ্টা বাকি</span>
+            </div>
+            <div class="text-[10px] text-slate-300">দ্রুততম তথ্য সন্ধানে সাহায্য করে</div>
+        </div>
+        {% elif case.caseStatus in 'REUNITED,FOUND' %}
+        <div class="bg-emerald-600/40 backdrop-blur px-6 py-3.5 rounded-2xl border border-emerald-400 text-center">
+            <div class="text-[10px] text-emerald-200 uppercase tracking-widest font-black">বর্তমান অবস্থা</div>
+            <div class="text-lg font-black text-white flex items-center justify-center space-x-1.5">
+                <i class="fa-solid fa-shield-heart text-emerald-300"></i>
+                <span>নিরাপদে পরিবারের কাছে প্রত্যাবর্তিত</span>
+            </div>
+            <div class="text-[10px] text-emerald-100">ব্যক্তিগত তথ্য ও ছবি গোপন রাখা হয়েছে</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left 2 Cols: Main Dossier, Map, Sighting Tips -->
+        <div class="lg:col-span-2 space-y-8">
+            
+            <!-- Person Dossier Card -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-200">
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
+                    <!-- Photo with auto-archive privacy shield -->
+                    <div class="w-full sm:w-60 h-64 rounded-2xl overflow-hidden bg-slate-100 border border-gray-200 flex-shrink-0 relative group">
+                        <img src="{{ case.display_photo }}" alt="{{ case.fullName }}" class="w-full h-full object-cover">
+                        {% if case.isArchived or case.caseStatus in 'REUNITED,FOUND' %}
+                        <div class="absolute inset-0 bg-emerald-950/70 backdrop-blur-sm flex flex-col items-center justify-center text-white p-4 text-center">
+                            <i class="fa-solid fa-user-lock text-4xl mb-2 text-emerald-400"></i>
+                            <span class="text-xs font-bold leading-tight">গোপনীয়তা সক্রিয়</span>
+                            <span class="text-[10px] text-emerald-200 mt-1">নিরাপদে উদ্ধারের পর ছবি লুকানো হয়েছে</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Core Details -->
+                    <div class="flex-1 space-y-3">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xs font-bold uppercase tracking-wider text-gray-400">ব্যক্তিগত তথ্যপঞ্জি</span>
+                                {% if case.is_verified %}
+                                <span class="inline-flex items-center space-x-1 bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-black px-2.5 py-0.5 rounded-full shadow-xs">
+                                    <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                                    <span>Verified</span>
+                                </span>
+                                {% endif %}
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-black {% if case.caseStatus == 'SEARCHING' %}bg-red-100 text-red-700{% elif case.caseStatus == 'SIGHTED' %}bg-amber-100 text-amber-800{% else %}bg-emerald-100 text-emerald-800{% endif %}">
+                                {% if case.caseStatus == 'SEARCHING' %}অনুসন্ধান চলছে
+                                {% elif case.caseStatus == 'SIGHTED' %}তথ্য পাওয়া গেছে
+                                {% elif case.caseStatus in 'FOUND,REUNITED' %}পরিবারে উদ্ধারকৃত
+                                {% else %}{{ case.get_caseStatus_display }}{% endif %}
+                            </span>
+                        </div>
+
+                        <h2 class="text-2xl font-black text-gray-900">{{ case.fullName }}</h2>
+
+                        <div class="grid grid-cols-2 gap-3 text-xs pt-1">
+                            <div><span class="text-gray-400 block">বয়স:</span><strong class="text-gray-800 text-sm">{{ case.age }} বছর</strong></div>
+                            <div><span class="text-gray-400 block">লিঙ্গ:</span><strong class="text-gray-800 text-sm">{{ case.gender }}</strong></div>
+                            <div><span class="text-gray-400 block">উচ্চতা:</span><strong class="text-gray-800">{{ case.height|default:"স্বাভাবিক" }}</strong></div>
+                            <div><span class="text-gray-400 block">শনাক্তকারী চিহ্ন:</span><strong class="text-gray-800">{{ case.identifyingMarks|default:"উল্লেখ নেই" }}</strong></div>
+                        </div>
+
+                        {% if case.medicalConditions %}
+                        <div class="bg-red-50 text-red-900 p-3.5 rounded-2xl border border-red-200 text-xs">
+                            <div class="font-bold mb-0.5 flex items-center space-x-1.5">
+                                <i class="fa-solid fa-heart-pulse text-red-600"></i>
+                                <span>জরুরী চিকিৎসা / মানসিক সংবেদনশীলতা:</span>
+                            </div>
+                            <p class="leading-relaxed">{{ case.medicalConditions }}</p>
+                        </div>
+                        {% endif %}
+
+                        <div class="bg-slate-50 p-3.5 rounded-2xl border border-gray-100 text-xs text-gray-700">
+                            <strong class="text-gray-900">সর্বশেষ দেখা পোশাকের বর্ণনা:</strong>
+                            <p class="mt-0.5">{{ case.clothingDetails|default:"সাধারণ পোশাক" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Last Seen Interactive Map -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-200">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="font-bold text-gray-900 text-base flex items-center">
+                            <i class="fa-solid fa-location-dot text-red-600 mr-2"></i>
+                            সর্বশেষ দেখার স্থান ও মানচিত্র
+                        </h3>
+                        <p class="text-xs text-gray-500 mt-0.5">
+                            {{ case.location.address }}, {{ case.location.area }}, {{ case.location.thana }}, {{ case.location.city }}
+                        </p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        {% if case.location %}
+                        <a href="https://www.google.com/maps/search/?api=1&query={{ case.location.latitude }},{{ case.location.longitude }}" target="_blank" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold border border-blue-200 px-3 py-1.5 rounded-xl text-xs flex items-center space-x-1.5 transition shadow-sm">
+                            <i class="fa-solid fa-diamond-turn-right text-blue-600"></i>
+                            <span>গুগল ম্যাপে দিকনির্দেশনা পান</span>
+                        </a>
+                        {% endif %}
+                        <span class="text-xs font-mono bg-slate-100 px-2.5 py-1.5 rounded-xl text-slate-600">
+                            {{ case.location.latitude|default:"23.7500"|floatformat:4 }}, {{ case.location.longitude|default:"90.3800"|floatformat:4 }}
+                        </span>
+                    </div>
+                </div>
+                <!-- Leaflet Map Container -->
+                <div id="case-map" class="map-container border border-gray-200 shadow-inner rounded-2xl overflow-hidden" style="height: 350px; width: 100%; min-height: 300px; z-index: 10;"></div>
+            </div>
+
+            <!-- Community Sighting Tips Section -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-200">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="font-bold text-gray-900 text-lg flex items-center">
+                            <i class="fa-solid fa-eye text-amber-500 mr-2"></i>
+                            প্রত্যক্ষদর্শীর ক্লু ও তথ্যসমূহ ({{ tips.count }})
+                        </h3>
+                        <p class="text-xs text-gray-500">এলাকার সাধারণ নাগরিক ও দোকানদারদের পাঠানো তথ্য</p>
+                    </div>
+                    <a href="{% url 'sightings:submit_tip' case.caseID %}" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition flex items-center space-x-1.5 shadow">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>তথ্য দিন</span>
+                    </a>
+                </div>
+
+                <div class="space-y-4">
+                    {% for tip in tips %}
+                    <div class="p-4 rounded-2xl border {% if tip.status == 'CREDIBLE' %}border-emerald-300 bg-emerald-50/40{% elif tip.status == 'DISMISSED' %}border-gray-200 bg-gray-50/50{% else %}border-amber-200 bg-amber-50/30{% endif %}">
+                        <div class="flex items-center justify-between text-xs mb-2">
+                            <div class="flex items-center space-x-2">
+                                <span class="font-bold text-gray-900">{{ tip.tipster_name|default:"সচেতন নাগরিক" }}</span>
+                                <span class="text-gray-400">• {{ tip.sightingTime|date:"M d, Y h:i A" }} ({{ tip.sightingTime|timesince }} আগে)</span>
+                            </div>
+                            {% if tip.status == 'CREDIBLE' %}
+                            <span class="bg-emerald-600 text-white font-black px-2.5 py-0.5 rounded text-[10px]">
+                                <i class="fa-solid fa-check-double mr-1"></i>পুলিশ কর্তৃক নির্ভরযোগ্য তথ্য হিসেবে চিহ্নিত
+                            </span>
+                            {% elif tip.status == 'DISMISSED' %}
+                            <span class="bg-gray-200 text-gray-600 font-semibold px-2 py-0.5 rounded text-[10px]">
+                                বাতিলকৃত
+                            </span>
+                            {% else %}
+                            <span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-[10px]">
+                                পুলিশ যাচাইকরণের অপেক্ষায়
+                            </span>
+                            {% endif %}
+                        </div>
+
+                        <p class="text-xs text-gray-800 leading-relaxed mb-2 font-medium">
+                            "{{ tip.sightingDescription }}"
+                        </p>
+
+                        <div class="text-[11px] text-gray-500 flex items-center space-x-4">
+                            <span><i class="fa-solid fa-location-dot text-red-500 mr-1"></i>স্থান: {{ tip.location.area }}, {{ tip.location.thana }}</span>
+                            {% if tip.photoProof %}
+                            <a href="{{ tip.photoProof.url }}" target="_blank" class="text-blue-600 hover:underline flex items-center">
+                                <i class="fa-solid fa-image mr-1"></i>প্রমাণ ছবি দেখুন
+                            </a>
+                            {% endif %}
+                        </div>
+
+                        <!-- Officer action on tip if officer logged in -->
+                        {% if user.is_authenticated and user.is_officer and tip.status == 'PENDING' %}
+                        <div class="mt-3 pt-2 border-t border-gray-200 flex items-center space-x-2 text-xs">
+                            <span class="text-gray-500 font-bold">পুলিশের করণীয়:</span>
+                            <a href="{% url 'sightings:flag_credible' tip.tipID %}" class="bg-emerald-600 text-white px-2.5 py-1 rounded font-bold hover:bg-emerald-700">বিশ্বাসযোগ্য চিহ্নিত করুন</a>
+                            <a href="{% url 'sightings:dismiss_tip' tip.tipID %}" class="bg-gray-200 text-gray-700 px-2.5 py-1 rounded hover:bg-gray-300">বাতিল</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-8 text-gray-400 text-xs">
+                        <i class="fa-regular fa-comments text-3xl mb-2 text-gray-300 block"></i>
+                        এখনো কোনো তথ্য আসেনি। আপনি এই ব্যক্তিকে দেখে থাকলে অনুগ্রহ করে এখনই সন্ধান দিন।
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Col: Verification Badge, Reporter Info, Status Controls -->
+        <div class="space-y-6">
+            
+            <!-- Police Case Verification Card -->
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-200">
+                <div class="flex items-center space-x-2 text-blue-700 font-bold text-xs uppercase tracking-wider mb-3">
+                    <i class="fa-solid fa-shield-halved text-base"></i>
+                    <span>পুলিশ ভেরিফিকেশন</span>
+                </div>
+
+                {% if case.is_verified %}
+                <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-center mb-4">
+                    <div class="inline-flex items-center space-x-1.5 bg-emerald-600 text-white text-xs font-black px-4 py-1.5 rounded-full mb-2 shadow-sm">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>Verified</span>
+                    </div>
+                    <div class="text-xs text-emerald-950 font-bold">পুলিশ কর্তৃক যাচাইকৃত সত্য কেস</div>
+                    {% if case.gd_number %}
+                    <div class="text-xs font-mono font-bold text-slate-700 bg-white px-3 py-1 rounded-xl border border-gray-200 inline-block mt-2">
+                        জিডি নম্বর: {{ case.gd_number }}
+                    </div>
+                    {% endif %}
+                    <div class="text-[11px] text-emerald-700 mt-2 flex items-center justify-center space-x-1">
+                        <i class="fa-solid fa-certificate text-emerald-600"></i>
+                        <span>যাচাইকারী: {{ case.verification.officer.stationName|default:"মেট্রোপলিটন পুলিশ" }}</span>
+                    </div>
+                </div>
+                {% if case.verification.policeRemarks %}
+                <div class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl mb-3">
+                    <strong>তদন্তকারী অফিসারের মন্তব্য:</strong> {{ case.verification.policeRemarks }}
+                </div>
+                {% endif %}
+                <p class="text-[11px] text-gray-500 leading-relaxed font-light">
+                    এই রিপোর্টটির সত্যতা পুলিশের মাধ্যমে যাচাই করা হয়েছে (Verified) এবং {{ case.location.thana }} থানা এলাকার বাসিন্দাদের কাছে অ্যালার্ট পাঠানো হয়েছে।
+                </p>
+
+                {% else %}
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center mb-3">
+                    <i class="fa-solid fa-hourglass-half text-amber-600 text-2xl mb-1"></i>
+                    <div class="text-xs font-bold text-amber-900">পুলিশ যাচাইকরণের অপেক্ষায়</div>
+                    <div class="text-[11px] text-amber-700 mt-1">
+                        দায়িত্বপ্রাপ্ত অফিসার পরিবার ও তথ্যাদি যাচাই করে সত্যতা নিশ্চিত করবেন।
+                    </div>
+                </div>
+                {% if user.is_authenticated and user.is_officer %}
+                <a href="{% url 'verification:verify_case' case.caseID %}" class="w-full block text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow">
+                    রিপোর্ট যাচাই ও ভেরিফাই করুন →
+                </a>
+                {% endif %}
+                {% endif %}
+            </div>
+
+            <!-- Reporter Info Card -->
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-200">
+                <h3 class="font-bold text-gray-900 text-xs uppercase tracking-wider mb-3 flex items-center">
+                    <i class="fa-solid fa-user-group text-red-500 mr-2"></i>
+                    পরিবার / আবেদনকারীর তথ্য
+                </h3>
+                <div class="space-y-2.5 text-xs">
+                    <div class="flex justify-between py-1 border-b border-gray-100">
+                        <span class="text-gray-500">যোগাযোগের ব্যক্তি:</span>
+                        <strong class="text-gray-800">{{ case.reporter.user.get_full_name|default:case.reporter.user.username }}</strong>
+                    </div>
+                    <div class="flex justify-between py-1 border-b border-gray-100">
+                        <span class="text-gray-500">সম্পর্ক:</span>
+                        <strong class="text-gray-800">{{ case.reporter.relation|default:case.reporter.reporterType }}</strong>
+                    </div>
+                    {% if not case.isArchived and case.caseStatus != 'REUNITED' and case.caseStatus != 'FOUND' %}
+                    <div class="flex justify-between py-1 border-b border-gray-100">
+                        <span class="text-gray-500">জরুরী মোবাইল:</span>
+                        <a href="tel:{{ case.reporter.user.phone }}" class="text-red-600 font-bold hover:underline font-mono">
+                            {{ case.reporter.user.phone|default:"৯৯৯-এ কল দিন" }}
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="text-[11px] text-emerald-700 bg-emerald-50 p-2.5 rounded-xl">
+                        <i class="fa-solid fa-lock mr-1"></i> নিরাপত্তা ও গোপনীয়তা রক্ষার্থে মোবাইল নম্বর লুকানো হয়েছে।
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Update Status Tool (Only Admin can update case status) -->
+            {% if user.is_authenticated and user.is_admin_user %}
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-200">
+                <h3 class="font-bold text-gray-900 text-xs uppercase tracking-wider mb-3">
+                    <i class="fa-solid fa-pen-to-square mr-1 text-gray-500"></i> কেসের অবস্থা আপডেট করুন
+                </h3>
+                <form action="{% url 'cases:case_update_status' case.caseID %}" method="POST" class="space-y-3">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-[11px] text-gray-600 mb-1">অবস্থা নির্বাচন করুন:</label>
+                        <select name="caseStatus" class="w-full px-3 py-2 border rounded-xl text-xs focus:ring-2 focus:ring-red-500">
+                            <option value="SEARCHING" {% if case.caseStatus == 'SEARCHING' %}selected{% endif %}>অনুসন্ধান চলছে (Searching)</option>
+                            <option value="SIGHTED" {% if case.caseStatus == 'SIGHTED' %}selected{% endif %}>দেখা গেছে / তথ্য প্রাপ্ত (Sighted)</option>
+                            <option value="FOUND" {% if case.caseStatus == 'FOUND' %}selected{% endif %}>উদ্ধারকৃত (Found - তথ্য লুকানো)</option>
+                            <option value="REUNITED" {% if case.caseStatus == 'REUNITED' %}selected{% endif %}>পরিবারে প্রত্যাবর্তন (Reunited - অটো আর্কাইভ)</option>
+                            <option value="CLOSED" {% if case.caseStatus == 'CLOSED' %}selected{% endif %}>কেস সমাপ্ত (Closed)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2 rounded-xl text-xs transition">
+                        স্ট্যাটাস আপডেট করুন
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const lat = parseFloat("{{ case.location.latitude|default:'23.7500' }}") || 23.7500;
+    const lon = parseFloat("{{ case.location.longitude|default:'90.3800' }}") || 90.3800;
+    
+    const map = L.map('case-map', {
+        scrollWheelZoom: false,
+        zoomControl: true
+    }).setView([lat, lon], 14);
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    setTimeout(() => map.invalidateSize(), 100);
+    setTimeout(() => map.invalidateSize(), 500);
+    setTimeout(() => map.invalidateSize(), 1200);
+    window.addEventListener('resize', () => map.invalidateSize());
+
+    const customPinIcon = L.divIcon({
+        className: 'aponjon-map-pin',
+        html: `
+            <div style="position: relative; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));">
+                <div style="width: 32px; height: 32px; background: #dc2626; border: 2.5px solid #ffffff; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); display: flex; align-items: center; justify-content: center;">
+                    <i class="fa-solid fa-location-dot text-white text-xs" style="transform: rotate(45deg);"></i>
+                </div>
+            </div>
+        `,
+        iconSize: [38, 38],
+        iconAnchor: [19, 36],
+        popupAnchor: [0, -36]
+    });
+
+    const marker = L.marker([lat, lon], { icon: customPinIcon }).addTo(map);
+
+    L.circle([lat, lon], {
+        radius: 1000,
+        color: '#dc2626',
+        fillColor: '#ef4444',
+        fillOpacity: 0.12,
+        weight: 1.5,
+        dashArray: '5, 5'
+    }).addTo(map);
+
+    const safeName = "{{ case.fullName|escapejs }}";
+    const safeArea = "{{ case.location.area|default:''|escapejs }}";
+    const safeThana = "{{ case.location.thana|default:''|escapejs }}";
+
+    marker.bindPopup(`<div class='text-xs'><strong>সর্বশেষ এখানে দেখা গেছে:</strong><br><span class='text-red-600 font-bold'>${safeName}</span><br>${safeArea}, ${safeThana}</div>`).openPopup();
+});
+</script>
+{% endblock %}

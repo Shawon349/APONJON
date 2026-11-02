@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}আমার প্রোফাইল - আপনজন{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-10 max-w-4xl">
+    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+        
+        <!-- Header banner -->
+        <div class="bg-gradient-to-r from-slate-900 to-red-900 text-white p-8 flex flex-col sm:flex-row items-center justify-between">
+            <div class="flex items-center space-x-5">
+                <!-- Avatar with Profile Photo Upload -->
+                <div class="relative group">
+                    {% if user.profilePicture %}
+                    <img src="{{ user.profilePicture.url }}" alt="{{ user.username }}" class="w-20 h-20 rounded-2xl object-cover border-2 border-white/40 shadow-lg">
+                    {% else %}
+                    <div class="w-20 h-20 rounded-2xl bg-white/10 border-2 border-white/20 flex items-center justify-center text-3xl font-extrabold text-white">
+                        {{ user.first_name|default:user.username|make_list|first|upper }}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Upload icon button overlay -->
+                    <label for="profile_pic_upload_input" class="absolute -bottom-2 -right-2 bg-red-600 hover:bg-red-700 text-white w-8 h-8 rounded-full border-2 border-slate-900 flex items-center justify-center cursor-pointer shadow-lg transition transform hover:scale-110" title="ছবি পরিবর্তন বা আপলোড করুন">
+                        <i class="fa-solid fa-camera text-xs"></i>
+                    </label>
+                </div>
+
+                <div>
+                    <div class="inline-block bg-white/20 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider mb-1">
+                        {{ user.get_role_display }}
+                    </div>
+                    <h2 class="text-2xl font-black">{{ user.get_full_name|default:user.username }}</h2>
+                    <p class="text-xs text-slate-300">নিবন্ধিত সদস্য: {{ user.createdAt|date:"M d, Y" }}</p>
+                </div>
+            </div>
+
+            <!-- Action buttons in header -->
+            <div class="mt-4 sm:mt-0 flex flex-wrap items-center gap-2">
+                <label for="profile_pic_upload_input" class="bg-white/15 hover:bg-white/25 border border-white/30 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl transition flex items-center space-x-1.5 cursor-pointer shadow-sm">
+                    <i class="fa-solid fa-image"></i>
+                    <span>ছবি আপলোড করুন</span>
+                </label>
+                <a href="{% url 'accounts:change_password' %}" class="bg-white/10 hover:bg-white/20 border border-white/30 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-key"></i>
+                    <span>পাসওয়ার্ড পরিবর্তন</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Hidden Auto-Submitting Form for Profile Picture Upload -->
+        <form method="POST" enctype="multipart/form-data" id="profile-picture-form" class="hidden">
+            {% csrf_token %}
+            <input type="file" name="profile_picture" id="profile_pic_upload_input" accept="image/*" onchange="document.getElementById('profile-picture-form').submit();">
+        </form>
+
+        <div class="p-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Account Info -->
+                <div class="bg-slate-50 p-6 rounded-2xl border border-gray-100">
+                    <h3 class="font-bold text-sm text-gray-900 mb-4 flex items-center">
+                        <i class="fa-solid fa-address-card text-red-500 mr-2"></i> অ্যাকাউন্টের বিবরণ
+                    </h3>
+                    <dl class="space-y-3 text-xs">
+                        <div class="flex justify-between py-1 border-b border-gray-200/60">
+                            <dt class="text-gray-500">ইউজারনেম:</dt>
+                            <dd class="font-bold text-gray-800 font-mono">{{ user.username }}</dd>
+                        </div>
+                        <div class="flex justify-between py-1 border-b border-gray-200/60">
+                            <dt class="text-gray-500">পূর্ণ নাম:</dt>
+                            <dd class="font-semibold text-gray-800">{{ user.get_full_name|default:"প্রদান করা হয়নি" }}</dd>
+                        </div>
+                        <div class="flex justify-between py-1 border-b border-gray-200/60">
+                            <dt class="text-gray-500">ইমেইল:</dt>
+                            <dd class="font-semibold text-gray-800">{{ user.email|default:"প্রদান করা হয়নি" }}</dd>
+                        </div>
+                        <div class="flex justify-between py-1 border-b border-gray-200/60">
+                            <dt class="text-gray-500">মোবাইল নম্বর:</dt>
+                            <dd class="font-semibold text-gray-800 font-mono">{{ user.phone|default:"প্রদান করা হয়নি" }}</dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <!-- Role specific details -->
+                <div class="bg-slate-50 p-6 rounded-2xl border border-gray-100">
+                    {% if officer_profile %}
+                    <h3 class="font-bold text-sm text-blue-900 mb-4 flex items-center">
+                        <i class="fa-solid fa-shield-halved text-blue-600 mr-2"></i> পুলিশ স্টেশন তথ্য
+                    </h3>
+                    <dl class="space-y-3 text-xs">
+                        <div class="flex justify-between py-1 border-b border-gray-200/60">
+                            <dt class="text-gray-500">ব্যাজ / বিপি নম্বর:</dt>
+                            <dd class="font-bold text-blue-700 font-mono">{{ officer_profile.badgeNumber }}</dd>
+                        </div>
+                        <div class="flex justify-between py-1 border-b border-gray-200/60">
+                            <dt class="text-gray-500">থানার নাম:</dt>
+                            <dd class="font-semibold text-gray-800">{{ officer_profile.stationName }}</dd>
+                        </div>
+                        <div class="flex justify-between py-1 border-b border-gray-200/60">
+                            <dt class="text-gray-500">এখতিয়ারভুক্ত এলাকা:</dt>
+                            <dd class="font-semibold text-gray-800">{{ officer_profile.jurisdiction }}</dd>
+                        </div>
+                    </dl>
+                    <a href="{% url 'accounts:officer_dashboard' %}" class="mt-5 block text-center bg-blue-700 hover:bg-blue-800 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                        পুলিশ কন্ট্রোল ড্যাশবোর্ড খুলুন →
+                    </a>
+
+                    {% elif reporter_profile %}
+                    <h3 class="font-bold text-sm text-gray-900 mb-4 flex items-center">
+                        <i class="fa-solid fa-users text-amber-500 mr-2"></i> পারিবারিক / নাগরিক তথ্য
+                    </h3>
+                    <dl class="space-y-3 text-xs">
+                        <div class="flex justify-between py-1 border-b border-gray-200/60">
+                            <dt class="text-gray-500">ব্যবহারকারীর ধরন:</dt>
+                            <dd class="font-semibold text-gray-800">{{ reporter_profile.get_reporterType_display|default:reporter_profile.reporterType }}</dd>
+                        </div>
+                        <div class="flex justify-between py-1 border-b border-gray-200/60">
+                            <dt class="text-gray-500">সম্পর্ক:</dt>
+                            <dd class="font-semibold text-gray-800">{{ reporter_profile.relation|default:"উল্লেখ নেই" }}</dd>
+                        </div>
+                        <div class="flex justify-between py-1 border-b border-gray-200/60">
+                            <dt class="text-gray-500">এনআইডি নম্বর:</dt>
+                            <dd class="font-semibold text-gray-800 font-mono">{{ reporter_profile.nidNumber|default:"উল্লেখ নেই" }}</dd>
+                        </div>
+                        <div class="flex justify-between py-1 border-b border-gray-200/60">
+                            <dt class="text-gray-500">ঠিকানা ও এলাকা:</dt>
+                            <dd class="font-semibold text-gray-800">{{ reporter_profile.location|default:"ঢাকা" }}</dd>
+                        </div>
+                    </dl>
+                    <a href="{% url 'cases:my_cases' %}" class="mt-5 block text-center bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                        আমার দাখিলকৃত রিপোর্টসমূহ দেখুন →
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

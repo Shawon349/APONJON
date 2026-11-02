@@ -1,0 +1,448 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}আপনজন - পরিবারের কাছে ফিরিয়ে দিন প্রিয়জনকে{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative bg-slate-950 text-white py-12 sm:py-20 md:py-24 px-3 sm:px-4 overflow-hidden w-full max-w-full">
+    <!-- Hero Background: Original Aponjon Community & Police Illustration -->
+    <div class="absolute inset-0 z-0 overflow-hidden flex items-center justify-center pointer-events-none">
+        <img src="{% static 'images/aponjon_hero.jpg' %}" 
+             onerror="this.src='{% static 'images/aponjon_hero_nobg.png' %}'"
+             alt="আপনজন - পরিবার ও পুলিশের সমন্বিত উদ্যোগ" 
+             class="w-full h-full object-cover object-center filter brightness-[0.75] contrast-105">
+        <!-- Subtle Even Dark Overlay: Entire banner picture is fully visible without any box cutting it -->
+        <div class="absolute inset-0 bg-slate-950/65"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-transparent to-slate-950/80"></div>
+    </div>
+
+    <!-- Centered Hero Content for Aponjon (Floating directly on hero banner without any black box) -->
+    <div class="container mx-auto relative z-10 max-w-4xl text-center flex flex-col items-center justify-center">
+        <!-- Top Pill Badge: আপনজন - নিখোঁজ স্বজন ও ব্যক্তি সন্ধান প্ল্যাটফর্ম -->
+        <div class="inline-flex items-center space-x-2 bg-stone-900/90 hover:bg-stone-900 border border-slate-700/80 text-slate-200 text-xs sm:text-sm px-4 sm:px-5 py-1.5 rounded-full mb-5 sm:mb-7 backdrop-blur-md shadow-lg transition transform hover:scale-[1.02]">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block animate-pulse shadow-sm shadow-rose-500/50"></span>
+            <span class="font-medium tracking-wide">বাংলাদেশের সমন্বিত নিখোঁজ স্বজন ও প্রিয়জন সন্ধান প্ল্যাটফর্ম</span>
+        </div>
+
+        <!-- Main Headline -->
+        <h1 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight sm:leading-snug mb-4 sm:mb-5 drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)]">
+            <span class="text-white">প্রতিটি মুহূর্ত মূল্যবান। </span>
+            <span class="text-rose-500 block mt-1 sm:mt-2">আপনজনকে পরিবারের কাছে ফিরিয়ে দিন</span>
+        </h1>
+
+
+        <!-- Description Paragraph -->
+        <p class="text-slate-200 text-xs sm:text-sm md:text-base max-w-2xl mx-auto mb-6 sm:mb-8 leading-relaxed font-normal drop-shadow">
+            শিশু, প্রবীণ কিংবা যে কোনো নিখোঁজ প্রিয়জনের তথ্য দ্রুততম সময়ে ছড়িয়ে দিন। পুলিশ ভেরিফিকেশন, সাধারণ নাগরিকদের পাঠানো প্রত্যক্ষদর্শী ক্লু ও প্রশাসনের সাথে সমন্বয়ে প্রিয়জনকে নিরাপদে ফিরিয়ে আনতে <strong>আপনজন</strong> সদা তৎপর।
+        </p>
+
+        <!-- Two Rounded-Full Pill Buttons -->
+        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-center w-full max-w-md sm:max-w-none">
+            <!-- Left Rose Pill: নিখোঁজ আপনজনের রিপোর্ট পেশ করুন ➔ -->
+            <a href="{% url 'cases:case_create' %}" class="w-full sm:w-auto inline-flex items-center justify-center space-x-2.5 bg-gradient-to-r from-rose-600 via-red-600 to-rose-600 hover:from-rose-500 hover:to-red-500 text-white font-bold text-xs sm:text-sm md:text-base px-6 sm:px-8 py-3.5 sm:py-4 rounded-full shadow-xl shadow-rose-600/35 hover:shadow-rose-600/50 hover:scale-105 active:scale-95 transition-all duration-300">
+                <i class="fa-solid fa-bullhorn text-sm sm:text-base"></i>
+                <span>নিখোঁজ আপনজনের রিপোর্ট পেশ করুন</span>
+                <i class="fa-solid fa-arrow-right text-xs sm:text-sm ml-1"></i>
+            </a>
+
+            <!-- Right Dark Glass Pill: নিখোঁজ স্বজনদের তালিকা দেখুন -->
+            <a href="{% url 'cases:case_list' %}" class="w-full sm:w-auto inline-flex items-center justify-center space-x-2.5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm md:text-base px-6 sm:px-8 py-3.5 sm:py-4 rounded-full border border-white/25 hover:border-white/40 shadow-lg backdrop-blur-md hover:scale-105 active:scale-95 transition-all duration-300">
+                <i class="fa-solid fa-magnifying-glass text-sm sm:text-base text-rose-400"></i>
+                <span>নিখোঁজ স্বজনদের তালিকা দেখুন</span>
+            </a>
+        </div>
+
+    </div>
+
+    <div class="container mx-auto relative z-10 max-w-full">
+
+        <!-- Live Statistics Counter (৪-ধাপের পরিসংখ্যান ড্যাশবোর্ড - RGBY থিম) -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-6 mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-slate-700/60">
+            <!-- কার্ড ০১: RED (R) - মোট দাখিলকৃত রিপোর্ট -->
+            <div class="group relative bg-gradient-to-br from-red-950/90 via-rose-950/70 to-slate-900/95 hover:from-red-900/90 hover:to-slate-900 p-5 rounded-3xl border-2 border-red-500/70 hover:border-red-400 shadow-xl shadow-red-950/50 hover:shadow-red-900/50 transition-all duration-300 transform hover:-translate-y-1">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-red-500/25 text-red-200 font-black text-xs border border-red-400/50 shadow-inner">
+                        ০১
+                    </span>
+                    <div class="w-10 h-10 rounded-2xl bg-red-500/20 text-red-300 border border-red-500/40 flex items-center justify-center text-lg group-hover:scale-110 transition shadow-inner">
+                        <i class="fa-solid fa-file-shield"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline space-x-1.5">
+                    <span class="text-3xl sm:text-4xl font-black text-red-400 tracking-tight drop-shadow">{{ total_reported_bn|default:"৩" }}</span>
+                    <span class="text-xs font-bold text-red-300 uppercase tracking-wider">টি কেস</span>
+                </div>
+                <div class="text-sm font-bold text-red-100 mt-2">মোট দাখিলকৃত রিপোর্ট</div>
+                <div class="text-[11px] text-red-200/70 font-normal mt-0.5">থানা ও অনলাইনে নথিবদ্ধ</div>
+            </div>
+
+            <!-- কার্ড ০২: GREEN (G) - সক্রিয় অনুসন্ধান চলছে -->
+            <div class="group relative bg-gradient-to-br from-emerald-950/90 via-teal-950/70 to-slate-900/95 hover:from-emerald-900/90 hover:to-slate-900 p-5 rounded-3xl border-2 border-emerald-500/70 hover:border-emerald-400 shadow-xl shadow-emerald-950/50 hover:shadow-emerald-900/50 transition-all duration-300 transform hover:-translate-y-1">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-emerald-500/25 text-emerald-200 font-black text-xs border border-emerald-400/50 shadow-inner">
+                        ০২
+                    </span>
+                    <div class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center justify-center text-lg group-hover:scale-110 transition relative shadow-inner">
+                        <i class="fa-solid fa-person-walking"></i>
+                        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-400 rounded-full animate-ping"></span>
+                    </div>
+                </div>
+                <div class="flex items-baseline space-x-1.5">
+                    <span class="text-3xl sm:text-4xl font-black text-emerald-400 tracking-tight drop-shadow">{{ total_active_bn|default:"২" }}</span>
+                    <span class="text-xs font-bold text-emerald-300 uppercase tracking-wider">টি চলছে</span>
+                </div>
+                <div class="text-sm font-bold text-emerald-100 mt-2">সক্রিয় অনুসন্ধান চলছে</div>
+                <div class="text-[11px] text-emerald-200/70 font-normal mt-0.5">মাঠপর্যায়ে লাইভ তদন্তাধীন</div>
+            </div>
+
+            <!-- কার্ড ০৩: BLUE (B) - নিরাপদে পরিবারে উদ্ধার -->
+            <div class="group relative bg-gradient-to-br from-blue-950/90 via-indigo-950/70 to-slate-900/95 hover:from-blue-900/90 hover:to-slate-900 p-5 rounded-3xl border-2 border-blue-500/70 hover:border-blue-400 shadow-xl shadow-blue-950/50 hover:shadow-blue-900/50 transition-all duration-300 transform hover:-translate-y-1">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-blue-500/25 text-blue-200 font-black text-xs border border-blue-400/50 shadow-inner">
+                        ০৩
+                    </span>
+                    <div class="w-10 h-10 rounded-2xl bg-blue-500/20 text-blue-300 border border-blue-500/40 flex items-center justify-center text-lg group-hover:scale-110 transition shadow-inner">
+                        <i class="fa-solid fa-heart-circle-check"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline space-x-1.5">
+                    <span class="text-3xl sm:text-4xl font-black text-blue-400 tracking-tight drop-shadow">{{ total_reunited_bn|default:"১" }}</span>
+                    <span class="text-xs font-bold text-blue-300 uppercase tracking-wider">জন উদ্ধার</span>
+                </div>
+                <div class="text-sm font-bold text-blue-100 mt-2">নিরাপদে পরিবারে উদ্ধার</div>
+                <div class="text-[11px] text-blue-200/70 font-normal mt-0.5">গোপনীয়তায় সফল পুনর্মিলন</div>
+            </div>
+
+            <!-- কার্ড ০৪: YELLOW (Y) - নাগরিকদের প্রাপ্ত তথ্য / ক্লু -->
+            <div class="group relative bg-gradient-to-br from-amber-950/90 via-yellow-950/70 to-slate-900/95 hover:from-amber-900/90 hover:to-slate-900 p-5 rounded-3xl border-2 border-amber-500/70 hover:border-amber-400 shadow-xl shadow-amber-950/50 hover:shadow-amber-900/50 transition-all duration-300 transform hover:-translate-y-1">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-amber-500/25 text-amber-200 font-black text-xs border border-amber-400/50 shadow-inner">
+                        ০৪
+                    </span>
+                    <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center text-lg group-hover:scale-110 transition shadow-inner">
+                        <i class="fa-solid fa-bullhorn"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline space-x-1.5">
+                    <span class="text-3xl sm:text-4xl font-black text-amber-400 tracking-tight drop-shadow">{{ total_tips_bn|default:"১" }}</span>
+                    <span class="text-xs font-bold text-amber-300 uppercase tracking-wider">টি ক্লু</span>
+                </div>
+                <div class="text-sm font-bold text-amber-100 mt-2">নাগরিকদের প্রাপ্ত তথ্য / ক্লু</div>
+                <div class="text-[11px] text-amber-200/70 font-normal mt-0.5">জনগণের পাঠানো প্রত্যক্ষদর্শী ক্লু</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Filter & Search Bar Section -->
+<section class="container mx-auto px-4 -mt-7 relative z-20">
+    <form action="{% url 'cases:case_list' %}" method="GET" class="bg-white p-4 sm:p-5 rounded-2xl shadow-xl border border-gray-100 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+        <div class="md:col-span-5 relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-gray-400 text-sm"></i>
+            <input type="text" name="q" value="{{ query }}" placeholder="নিখোঁজ ব্যক্তির নাম, পোশাক বা শারীরিক বিবরণ লিখুন..." class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-red-500 focus:bg-white outline-none">
+        </div>
+        <div class="md:col-span-3">
+            <select name="thana" class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-red-500 outline-none">
+                <option value="">সকল থানা এলাকা (ঢাকা ও আশেপাশের)</option>
+                <option value="Dhanmondi" {% if thana_filter == 'Dhanmondi' or thana_filter == 'ধানমন্ডি' %}selected{% endif %}>ধানমন্ডি থানা</option>
+                <option value="Mirpur" {% if thana_filter == 'Mirpur' or thana_filter == 'মিরপুর' %}selected{% endif %}>মিরপুর থানা</option>
+                <option value="Gulshan" {% if thana_filter == 'Gulshan' or thana_filter == 'গুলশান' %}selected{% endif %}>গুলশান থানা</option>
+                <option value="Uttara" {% if thana_filter == 'Uttara' or thana_filter == 'উত্তরা' %}selected{% endif %}>উত্তরা থানা</option>
+                <option value="Mohammadpur" {% if thana_filter == 'Mohammadpur' or thana_filter == 'মোহাম্মদপুর' %}selected{% endif %}>মোহাম্মদপুর থানা</option>
+            </select>
+        </div>
+        <div class="md:col-span-2">
+            <select name="urgency" class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-red-500 outline-none">
+                <option value="">সকল ধরণের সতর্কতা</option>
+                <option value="CRITICAL" {% if urgency_filter == 'CRITICAL' %}selected{% endif %}>জরুরী সর্বোচ্চ ঝুঁকি (শিশু, প্রবীণ ও নারী)</option>
+                <option value="HIGH" {% if urgency_filter == 'HIGH' %}selected{% endif %}>উচ্চ অগ্রাধিকার (নারী / তরুণ / জরুরী চিকিৎসা)</option>
+                <option value="MEDIUM" {% if urgency_filter == 'MEDIUM' %}selected{% endif %}>সাধারণ সতর্কতা</option>
+            </select>
+        </div>
+        <div class="md:col-span-2">
+            <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl transition text-sm flex items-center justify-center space-x-1.5 shadow">
+                <i class="fa-solid fa-filter"></i>
+                <span>খুঁজুন</span>
+            </button>
+        </div>
+    </form>
+</section>
+
+<!-- Volunteer Community Callout Strip -->
+<div class="container mx-auto px-4 mt-6">
+    <div class="bg-gradient-to-r from-emerald-950 via-slate-900 to-teal-950 text-white p-5 rounded-3xl shadow-xl border border-emerald-800/40 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center space-x-4">
+            <div class="w-12 h-12 bg-emerald-500/20 border border-emerald-400/30 text-emerald-400 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 shadow-inner">
+                <i class="fa-solid fa-hand-holding-heart"></i>
+            </div>
+            <div>
+                <div class="inline-block bg-emerald-900/80 text-emerald-300 border border-emerald-700/50 text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full mb-1">
+                    কমিউনিটি স্বেচ্ছাসেবী উদ্যোগ
+                </div>
+                <h3 class="text-base sm:text-lg font-black text-white">আপনিও হতে পারেন কোনো পরিবারের আশার আলো!</h3>
+                <p class="text-xs text-slate-300 font-light mt-0.5">আপনার এলাকার নিখোঁজ ব্যক্তিদের সন্ধান ও উদ্ধার অভিযানে পুলিশ ও পরিবারের পাশে দাঁড়াতে যুক্ত হোন।</p>
+            </div>
+        </div>
+        <a href="{% url 'accounts:register_volunteer' %}" class="w-full md:w-auto bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black px-6 py-3 rounded-2xl text-xs sm:text-sm transition shadow-lg hover:shadow-emerald-500/30 flex items-center justify-center space-x-2 flex-shrink-0">
+            <i class="fa-solid fa-user-plus"></i>
+            <span>স্বেচ্ছাসেবক হিসেবে যুক্ত হোন →</span>
+        </a>
+    </div>
+</div>
+
+<!-- Critical Urgency Priority Section -->
+{% if critical_cases %}
+<section class="container mx-auto px-4 mt-12">
+    <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center space-x-3">
+            <span class="w-3.5 h-3.5 bg-red-600 rounded-full animate-ping"></span>
+            <div>
+                <h2 class="text-xl sm:text-2xl font-black text-gray-900 flex items-center">
+                    জরুরী সতর্কতা: উচ্চ-ঝুঁকিপূর্ণ নিখোঁজ ব্যক্তি (শিশু, প্রবীণ ও নারী)
+                </h2>
+                <p class="text-xs text-red-600 font-bold">ছোট শিশু, প্রবীণ ব্যক্তি, নারী ও বিশেষ স্বাস্থ্য ঝুঁকিপূর্ণ ব্যক্তিদের জন্য স্বয়ংক্রিয় উচ্চ অগ্রাধিকার সতর্কতা</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {% for c in critical_cases %}
+        <div class="bg-white rounded-3xl shadow-md border-2 border-red-200 overflow-hidden hover:shadow-xl transition flex flex-col relative group">
+            <!-- Critical banner top -->
+            <div class="bg-red-600 text-white text-[11px] font-black uppercase tracking-wider py-1.5 px-4 flex items-center justify-between">
+                <span class="flex items-center space-x-1">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>সর্বোচ্চ সতর্কতা (জরুরী কেস)</span>
+                </span>
+                <span>বয়স: {{ c.age }} বছর</span>
+            </div>
+
+            <div class="p-5 flex-grow flex flex-col">
+                <div class="flex space-x-4 mb-3">
+                    <!-- Photo -->
+                    <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-slate-100 flex-shrink-0 border border-gray-200">
+                        <img src="{{ c.display_photo }}" alt="{{ c.fullName }}" class="w-full h-full object-cover group-hover:scale-105 transition">
+                    </div>
+                    <!-- Details -->
+                    <div class="flex-1">
+                        <h3 class="text-lg font-black text-gray-900 leading-snug">{{ c.fullName }}</h3>
+                        <p class="text-xs text-gray-500 mb-1.5 flex items-center mt-0.5">
+                            <i class="fa-solid fa-location-dot text-red-500 mr-1"></i>
+                            {{ c.location.area }}, {{ c.location.thana }}
+                        </p>
+                        
+                        <!-- Verification Status Badge -->
+                        {% if c.is_verified or c.gd_number %}
+                        <div class="inline-flex items-center space-x-1 bg-emerald-100 border border-emerald-300 text-emerald-800 text-[10px] font-black px-2 py-0.5 rounded-lg shadow-xs">
+                            <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                            <span>Verified</span>
+                        </div>
+                        {% else %}
+                        <div class="inline-flex items-center space-x-1 bg-amber-50 border border-amber-200 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-lg">
+                            <i class="fa-solid fa-hourglass-half text-amber-600"></i>
+                            <span>যাচাইকরণ অপেক্ষমাণ</span>
+                        </div>
+                        {% endif %}
+
+                        <div class="mt-2 text-xs font-bold text-slate-700">
+                            সর্বশেষ দেখা: <span class="text-slate-500 font-normal">{{ c.lastSeenTime|timesince }} আগে</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Medical/Risk highlight -->
+                {% if c.medicalConditions %}
+                <div class="bg-red-50 text-red-900 text-xs p-2.5 rounded-xl border border-red-100 mb-3">
+                    <strong>স্বাস্থ্য ঝুঁকি:</strong> {{ c.medicalConditions|truncatechars:80 }}
+                </div>
+                {% endif %}
+
+                <p class="text-xs text-gray-600 line-clamp-2 mb-4 bg-slate-50 p-2 rounded-xl">
+                    <strong>পোশাক:</strong> {{ c.clothingDetails|default:"সাধারণ পোশাক" }}
+                </p>
+
+                <!-- Actions -->
+                <div class="mt-auto flex items-center space-x-2 pt-2 border-t border-gray-100">
+                    <a href="{% url 'cases:case_detail' c.caseID %}" class="flex-1 bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2.5 rounded-xl text-center transition">
+                        বিস্তারিত দেখুন ও সন্ধান দিন
+                    </a>
+                    <a href="{% url 'sightings:submit_tip' c.caseID %}" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold py-2.5 px-3.5 rounded-xl transition" title="দেখা গেছে তথ্য দিন">
+                        <i class="fa-solid fa-eye mr-1"></i> তথ্য দিন
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Active Cases Section -->
+<section class="container mx-auto px-4 mt-12">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h2 class="text-xl sm:text-2xl font-black text-gray-900">
+                সক্রিয় অনুসন্ধানের তালিকায় থাকা ব্যক্তিবর্গ
+            </h2>
+            <p class="text-xs text-gray-500">গুজব প্রতিরোধে প্রতিটি রিপোর্ট বাংলাদেশ পুলিশের মাধ্যমে যাচাইকৃত (Verified)</p>
+        </div>
+        <a href="{% url 'cases:case_list' %}" class="text-xs font-bold text-red-600 hover:underline">সবগুলো দেখুন ({{ total_active }}) →</a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for c in active_cases %}
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition flex flex-col">
+            <!-- Header bar with Status -->
+            <div class="px-4 py-2.5 bg-slate-50 border-b border-gray-100 flex items-center justify-between text-xs">
+                <span class="font-bold text-gray-500 font-mono">কেস #{{ c.caseID }}</span>
+                {% if c.caseStatus == 'SEARCHING' %}
+                <span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full text-[11px] flex items-center space-x-1">
+                    <span class="w-1.5 h-1.5 bg-red-600 rounded-full animate-ping"></span>
+                    <span>অনুসন্ধান চলছে</span>
+                </span>
+                {% elif c.caseStatus == 'SIGHTED' %}
+                <span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full text-[11px] flex items-center space-x-1">
+                    <i class="fa-solid fa-eye text-amber-600"></i>
+                    <span>তথ্য পাওয়া গেছে</span>
+                </span>
+                {% endif %}
+            </div>
+
+            <div class="p-5 flex-grow flex flex-col">
+                <div class="flex space-x-3.5 mb-3">
+                    <img src="{{ c.display_photo }}" alt="{{ c.fullName }}" class="w-20 h-20 rounded-2xl object-cover bg-slate-100 border border-gray-200 flex-shrink-0">
+                    <div class="flex-1">
+                        <h4 class="font-black text-gray-900 text-base leading-tight">{{ c.fullName }}</h4>
+                        <div class="text-xs text-gray-500 mt-0.5">{{ c.gender }}, {{ c.age }} বছর</div>
+                        <div class="text-xs text-slate-600 mt-1 flex items-center">
+                            <i class="fa-solid fa-location-dot text-red-500 text-[10px] mr-1"></i>
+                            <span class="truncate">{{ c.location.area }}, {{ c.location.thana }}</span>
+                        </div>
+                        {% if c.is_verified or c.gd_number %}
+                        <div class="inline-flex items-center space-x-1 bg-emerald-100 border border-emerald-300 text-emerald-800 text-[10px] font-black px-2 py-0.5 rounded-md shadow-xs mt-1">
+                            <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                            <span>Verified</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="text-xs text-gray-600 line-clamp-2 mb-3 bg-slate-50 p-2.5 rounded-xl">
+                    <strong>পোশাকের বর্ণনা:</strong> {{ c.clothingDetails|default:"সাধারণ পোশাক" }}
+                </div>
+
+                <div class="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between text-xs">
+                    <span class="text-gray-400 font-medium"><i class="fa-regular fa-clock mr-1"></i>{{ c.lastSeenTime|timesince }} আগে</span>
+                    <a href="{% url 'cases:case_detail' c.caseID %}" class="font-bold text-red-600 hover:text-red-700">
+                        বিস্তারিত দেখুন →
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-3 text-center py-12 text-gray-400 bg-white rounded-3xl border border-gray-100">
+            <i class="fa-regular fa-folder-open text-4xl mb-2 text-gray-300 block"></i>
+            বর্তমানে কোনো সক্রিয় নিখোঁজ কেস নেই।
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Auto-Archive & Privacy Protection Showcase (Reunited Cases) -->
+{% if reunited_cases %}
+<section class="container mx-auto px-4 mt-16">
+    <div class="bg-gradient-to-r from-emerald-900 to-teal-950 text-white rounded-3xl p-6 sm:p-10 shadow-xl relative overflow-hidden">
+        <div class="max-w-2xl mb-8">
+            <div class="inline-flex items-center space-x-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs px-3.5 py-1.5 rounded-full mb-3">
+                <i class="fa-solid fa-lock text-emerald-300"></i>
+                <span class="font-bold">অনন্য বৈশিষ্ট্য: উদ্ধারের পর স্বয়ংক্রিয় তথ্য গোপনীয়তা সুরক্ষা</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-black tracking-tight mb-2">
+                নিরাপদে পরিবারের কাছে প্রত্যাবর্তিত
+            </h2>
+            <p class="text-slate-300 text-xs sm:text-sm leading-relaxed font-light">
+                নিখোঁজ ব্যক্তি নিরাপদে পরিবারের কাছে ফিরে আসামাত্র <strong>আপনজন</strong> স্বয়ংক্রিয়ভাবে তাদের ব্যক্তিগত ছবি ও তথ্য জনসাধারণের প্রদর্শন থেকে গোপন (Auto-Archive) করে দেয়। আমরা উদ্ধার পরবর্তী নাগরিক মর্যাদা ও পারিবারিক নিরাপত্তা রক্ষা করি।
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            {% for r in reunited_cases %}
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 flex flex-col items-center text-center">
+                <div class="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mb-3 border-2 border-emerald-400/50">
+                    <i class="fa-solid fa-user-shield text-2xl text-emerald-300"></i>
+                </div>
+                <h4 class="font-bold text-white text-sm">{{ r.fullName }}</h4>
+                <p class="text-[11px] text-emerald-300 font-semibold mb-2">সফলভাবে উদ্ধার ও হস্তান্তর</p>
+                <span class="bg-emerald-500/30 text-emerald-200 text-[10px] px-2 py-0.5 rounded font-mono">
+                    জিডি: {{ r.gd_number|default:"ভেরিফায়েড" }}
+                </span>
+                <span class="text-[10px] text-slate-300 mt-2">ছবি গোপনীয়তায় সংরক্ষিত</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- How আপনজন Works Workflow Section (About Us & Workflow) -->
+<section id="about-section" class="container mx-auto px-4 mt-16 mb-12 scroll-mt-24">
+    <div class="text-center max-w-xl mx-auto mb-10">
+        <span class="inline-block bg-rose-50 text-rose-600 text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider mb-2 border border-rose-200">
+            আমাদের সম্পর্কে ও কর্মপদ্ধতি
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-black text-gray-900">আপনজন কীভাবে কাজ করে?</h2>
+        <p class="text-xs text-gray-500 mt-1">পরিবার, পুলিশ ও এলাকাবাসীর মধ্যে নিখুঁত ৪-ধাপের অনুসন্ধান নেটওয়ার্ক</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+        <!-- ধাপ ১: লাল থিম (Red Theme) -->
+        <div class="bg-gradient-to-br from-red-50 via-rose-50/70 to-red-100/80 p-6 rounded-3xl shadow-md hover:shadow-xl border-2 border-red-300 hover:border-red-500 transition-all duration-300 transform hover:-translate-y-1.5 flex flex-col items-center">
+            <span class="inline-block bg-red-100 text-red-700 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider mb-2 border border-red-200">
+                ধাপ ০১ • জরুরী দাখিল
+            </span>
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-red-600 to-rose-500 text-white flex items-center justify-center text-2xl font-black mb-3 shadow-lg shadow-red-600/30">
+                ১
+            </div>
+            <h3 class="font-black text-base text-red-950 mb-2">দ্রুত রিপোর্ট দাখিল</h3>
+            <p class="text-xs text-red-900/80 leading-relaxed font-medium">পরিবার ৩ মিনিটের মধ্যে নিখোঁজ ব্যক্তির ছবি, পোশাকের বিবরণ ও শেষ দেখা অবস্থান দিয়ে রিপোর্ট করে।</p>
+        </div>
+
+        <!-- ধাপ ২: নীল থিম (Blue Theme) -->
+        <div class="bg-gradient-to-br from-blue-50 via-sky-50/70 to-blue-100/80 p-6 rounded-3xl shadow-md hover:shadow-xl border-2 border-blue-300 hover:border-blue-500 transition-all duration-300 transform hover:-translate-y-1.5 flex flex-col items-center">
+            <span class="inline-block bg-blue-100 text-blue-700 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider mb-2 border border-blue-200">
+                ধাপ ০২ • পুলিশ যাচাই
+            </span>
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-sky-500 text-white flex items-center justify-center text-2xl font-black mb-3 shadow-lg shadow-blue-600/30">
+                ২
+            </div>
+            <h3 class="font-black text-base text-blue-950 mb-2">পুলিশ ভেরিফিকেশন</h3>
+            <p class="text-xs text-blue-900/80 leading-relaxed font-medium">থানার দায়িত্বপ্রাপ্ত পুলিশ অফিসার রিপোর্ট যাচাই করে সত্যতা নিশ্চিত করলে "Verified" ব্যাজ প্রদর্শিত হয়, যা গুজব থামায়।</p>
+        </div>
+
+        <!-- ধাপ ৩: হলুদ/অ্যাম্বার থিম (Yellow / Amber Theme) -->
+        <div class="bg-gradient-to-br from-amber-50 via-yellow-50/80 to-amber-100/90 p-6 rounded-3xl shadow-md hover:shadow-xl border-2 border-amber-300 hover:border-amber-500 transition-all duration-300 transform hover:-translate-y-1.5 flex flex-col items-center">
+            <span class="inline-block bg-amber-100 text-amber-800 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider mb-2 border border-amber-300">
+                ধাপ ০৩ • লাইভ অ্যালার্ট
+            </span>
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 flex items-center justify-center text-2xl font-black mb-3 shadow-lg shadow-amber-500/30">
+                ৩
+            </div>
+            <h3 class="font-black text-base text-amber-950 mb-2">এলাকাভিত্তিক তাৎক্ষণিক এলার্ট</h3>
+            <p class="text-xs text-amber-950/80 leading-relaxed font-medium">সংশ্লিষ্ট এলাকার নাগরিক, স্থানীয় দোকানদার ও স্বেচ্ছাসেবকদের মোবাইলে সরাসরি এলাকা-ভিত্তিক এলার্ট পাঠানো হয়।</p>
+        </div>
+
+        <!-- ধাপ ৪: সবুজ/এমারেল্ড থিম (Green / Emerald Theme) -->
+        <div class="bg-gradient-to-br from-emerald-50 via-green-50/70 to-emerald-100/80 p-6 rounded-3xl shadow-md hover:shadow-xl border-2 border-emerald-300 hover:border-emerald-500 transition-all duration-300 transform hover:-translate-y-1.5 flex flex-col items-center">
+            <span class="inline-block bg-emerald-100 text-emerald-800 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider mb-2 border border-emerald-200">
+                ধাপ ০৪ • উদ্ধার ও গোপনীয়তা
+            </span>
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center text-2xl font-black mb-3 shadow-lg shadow-emerald-600/30">
+                ৪
+            </div>
+            <h3 class="font-black text-base text-emerald-950 mb-2">প্রত্যক্ষদর্শীর ক্লু ও গোপনীয়তা</h3>
+            <p class="text-xs text-emerald-900/80 leading-relaxed font-medium">সাধারণ মানুষ ছবি ও অবস্থান দিয়ে ক্লু পাঠায়। উদ্ধার সম্পন্ন হলে নিখোঁজের ব্যক্তিগত তথ্য স্বয়ংক্রিয়ভাবে লুকানো হয়।</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
