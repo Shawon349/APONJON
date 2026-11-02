@@ -1,0 +1,502 @@
+{% extends 'base.html' %}
+
+{% block title %}নিখোঁজ ব্যক্তির রিপোর্ট পেশ করুন - আপনজন{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+    <div class="bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-gray-100">
+        
+        <div class="mb-8 pb-4 border-b border-gray-100">
+            <span class="text-xs font-bold text-red-600 uppercase tracking-wider">জরুরী নিখোঁজ ডায়েরি পেশ</span>
+            <h1 class="text-2xl sm:text-3xl font-black text-gray-900 mt-1">নিখোঁজ ব্যক্তির রিপোর্ট দাখিল করুন</h1>
+            <p class="text-xs text-gray-500 mt-1">
+                প্রতিটি মুহূর্ত গুরুত্বপূর্ণ। নিখোঁজ ব্যক্তির সঠিক তথ্য ও পোশাকের বিবরণ দিন। রিপোর্ট দাখিলের পর সংশ্লিষ্ট থানা পুলিশ ভেরিফিকেশন (যাচাই) করে সত্যতা নিশ্চিত করবে ও নাগরিক অ্যালার্ট সম্প্রচার করবে।
+            </p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Section 1: Demographics -->
+            <div>
+                <h3 class="text-xs font-black uppercase tracking-wider text-gray-700 mb-3 flex items-center">
+                    <i class="fa-solid fa-user text-red-500 mr-2"></i>
+                    ১. নিখোঁজ ব্যক্তির মৌলিক পরিচয়
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold text-gray-700 mb-1">পূর্ণ নাম *</label>
+                        {{ form.fullName }}
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">বয়স (বছর) *</label>
+                        {{ form.age }}
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">লিঙ্গ *</label>
+                        {{ form.gender }}
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">আনুমানিক উচ্চতা</label>
+                        {{ form.height }}
+                    </div>
+                    <div>
+                        <div class="flex flex-wrap items-center justify-between gap-1 mb-1">
+                            <label class="block text-xs font-bold text-gray-700">সর্বশেষ দেখার তারিখ ও সময় *</label>
+                            <button type="button" id="btn-case-now" class="text-[11px] bg-red-100 hover:bg-red-200 text-red-900 font-bold px-2 py-0.5 rounded-lg transition border border-red-300 flex items-center space-x-1 shadow-sm">
+                                <i class="fa-solid fa-clock text-red-600"></i>
+                                <span>🕒 বর্তমান সময় দিন</span>
+                            </button>
+                        </div>
+                        {{ form.lastSeenTime }}
+                        {% if form.lastSeenTime.errors %}
+                        <p class="text-[11px] text-red-600 mt-1 font-bold">{{ form.lastSeenTime.errors.0 }}</p>
+                        {% endif %}
+                        <div id="case-time-preview" class="text-[11px] text-slate-700 font-medium mt-1.5 flex items-center space-x-1.5 bg-slate-50 px-2.5 py-1 rounded-xl border border-slate-200">
+                            <i class="fa-regular fa-clock text-red-500 flex-shrink-0"></i>
+                            <span id="case-time-text">সময় অঞ্চল: বাংলাদেশ সময় (Asia/Dhaka, GMT+6)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Photos & Appearance -->
+            <div class="pt-4 border-t border-gray-100">
+                <h3 class="text-xs font-black uppercase tracking-wider text-gray-700 mb-3 flex items-center">
+                    <i class="fa-solid fa-camera text-red-500 mr-2"></i>
+                    ২. ছবি ও শারীরিক গঠন
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">সাম্প্রতিক ছবি আপলোড করুন</label>
+                        {{ form.photo }}
+                        <span class="text-[10px] text-gray-400 mt-1 block">স্পষ্ট মুখের ছবি দ্রুত শনাক্তকরণে সাহায্য করে।</span>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">অথবা ছবির অনলাইন লিংক (যদি থাকে)</label>
+                        {{ form.photoURL }}
+                    </div>
+                </div>
+
+                <div class="mt-4 space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">সর্বশেষ দেখা পোশাকের বিস্তারিত বিবরণ *</label>
+                        {{ form.clothingDetails }}
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-red-600 mb-1 flex items-center">
+                            <i class="fa-solid fa-triangle-exclamation mr-1.5"></i>
+                            শারীরিক / মানসিক অবস্থা বা জরুরী স্বাস্থ্য ঝুঁকি (অ্যালঝাইমার, অটিজম, বাকপ্রতিবন্ধী ইত্যাদি)
+                        </label>
+                        {{ form.medicalConditions }}
+                        <span class="text-[10px] text-gray-400">এই তথ্যের ওপর ভিত্তি করে সিস্টেম স্বয়ংক্রিয়ভাবে উচ্চ-ঝুঁকিপূর্ণ সতর্কতা জারি করে।</span>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">শনাক্তকারী বিশেষ চিহ্ন বা আনুষঙ্গিক জিনিস (তিল, চশমা, কাটার দাগ ইত্যাদি)</label>
+                        {{ form.identifyingMarks }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Last-Seen Location & Interactive Map Pin -->
+            <div class="pt-4 border-t border-gray-100">
+                <h3 class="text-xs font-black uppercase tracking-wider text-gray-700 mb-3 flex items-center">
+                    <i class="fa-solid fa-map-location-dot text-red-500 mr-2"></i>
+                    ৩. সর্বশেষ দেখার স্থান ও ইন্টারেক্টিভ মানচিত্র পিন
+                </h3>
+                <p class="text-xs text-gray-500 mb-3">
+                    মানচিত্রে ক্লিক করে বা পিন টেনে নিখোঁজ হওয়ার স্থান চিহ্নিত করুন। অনুসন্ধান বক্সে এলাকার নাম লিখেও সহজে লোকেশনে যেতে পারেন:
+                </p>
+
+                <!-- Search bar & Quick controls directly above Map -->
+                <div class="bg-slate-50 p-3 rounded-2xl border border-gray-200 mb-3 space-y-2">
+                    <div class="flex flex-col sm:flex-row items-center gap-2">
+                        <!-- Location Search Input -->
+                        <div class="relative flex-1 w-full">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+                            <input type="text" id="map-search-input" placeholder="স্থান বা ঠিকানা লিখুন (উদা: ধানমন্ডি ২৭, মিরপুর ১০, আগ্রাবাদ, সিলেট...)" class="w-full pl-8 pr-3 py-2 text-xs bg-white border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-red-500">
+                        </div>
+                        <div class="flex items-center space-x-2 w-full sm:w-auto">
+                            <button type="button" id="btn-whole-bd-create" class="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition shadow flex items-center justify-center space-x-1 whitespace-nowrap" title="সমগ্র বাংলাদেশ দেখুন">
+                                <span>🇧🇩 পুরো বাংলাদেশ</span>
+                            </button>
+                            <button type="button" id="map-search-btn" class="flex-1 sm:flex-none bg-slate-900 hover:bg-black text-white text-xs font-bold px-3.5 py-2 rounded-xl transition shadow flex items-center justify-center space-x-1.5 whitespace-nowrap">
+                                <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                                <span>খুঁজুন</span>
+                            </button>
+                            <button type="button" id="detect-gps-btn" class="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition shadow flex items-center justify-center space-x-1 whitespace-nowrap" title="আমার বর্তমান লোকেশন নিন">
+                                <i class="fa-solid fa-crosshairs"></i>
+                                <span class="hidden md:inline">বর্তমান</span> <span>লোকেশন</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quick district/thana jumps -->
+                    <div class="flex items-center space-x-2 pt-1 border-t border-gray-200/60">
+                        <span class="text-[11px] font-bold text-gray-600 whitespace-nowrap"><i class="fa-solid fa-bolt text-amber-500 mr-1"></i>দ্রুত জাম্প:</span>
+                        <select id="quick-thana-jump" class="text-xs border border-gray-300 rounded-xl px-2.5 py-1.5 bg-white font-medium text-gray-700 outline-none focus:ring-2 focus:ring-red-500 flex-1">
+                            <option value="">-- বাংলাদেশের প্রধান এলাকা নির্বাচন করুন --</option>
+                            <option value="23.6850,90.3563,Bangladesh,বাংলাদেশ">🇧🇩 সমগ্র বাংলাদেশ (Whole Bangladesh)</option>
+                            <optgroup label="ঢাকা মেট্রোপলিটন (Dhaka)">
+                                <option value="23.7530,90.3750,Dhanmondi,ধানমন্ডি">ধানমন্ডি (Dhanmondi)</option>
+                                <option value="23.8070,90.3680,Mirpur,মিরপুর">মিরপুর (Mirpur)</option>
+                                <option value="23.7925,90.4078,Gulshan,গুলশান">গুলশান (Gulshan)</option>
+                                <option value="23.8690,90.3990,Uttara,উত্তরা">উত্তরা (Uttara)</option>
+                                <option value="23.7580,90.3600,Mohammadpur,মোহাম্মদপুর">মোহাম্মদপুর (Mohammadpur)</option>
+                                <option value="23.7600,90.3950,Tejgaon,তেজগাঁও">তেজগাঁও (Tejgaon)</option>
+                                <option value="23.7800,90.4250,Badda,বাড্ডা">বাড্ডা (Badda)</option>
+                                <option value="23.7300,90.4180,Motijheel,মতিঝিল">মতিঝিল (Motijheel)</option>
+                                <option value="23.7050,90.4250,Jatrabari,যাত্রাবাড়ী">যাত্রাবাড়ী (Jatrabari)</option>
+                                <option value="23.7330,90.3950,Shahbagh,শাহবাগ">শাহবাগ (Shahbagh)</option>
+                                <option value="23.7180,90.3880,Lalbagh,লালবাগ">লালবাগ (Lalbagh)</option>
+                                <option value="23.8440,90.2600,Savar,সাভার">সাভার (Savar)</option>
+                                <option value="23.9980,90.4200,Gazipur,গাজীপুর">গাজীপুর (Gazipur)</option>
+                                <option value="23.6200,90.5000,Narayanganj,নারায়ণগঞ্জ">নারায়ণগঞ্জ (Narayanganj)</option>
+                            </optgroup>
+                            <optgroup label="অন্যান্য বিভাগীয় শহর">
+                                <option value="22.3569,91.7832,Chattogram,চট্টগ্রাম">চট্টগ্রাম (Chattogram)</option>
+                                <option value="24.8949,91.8687,Sylhet,সিলেট">সিলেট (Sylhet)</option>
+                                <option value="24.3745,88.6042,Rajshahi,রাজশাহী">রাজশাহী (Rajshahi)</option>
+                                <option value="22.8456,89.5403,Khulna,খুলনা">খুলনা (Khulna)</option>
+                                <option value="22.7010,90.3535,Barishal,বরিশাল">বরিশাল (Barishal)</option>
+                                <option value="25.7439,89.2752,Rangpur,রংপুর">রংপুর (Rangpur)</option>
+                                <option value="24.7471,90.4203,Mymensingh,ময়মনসিংহ">ময়মনসিংহ (Mymensingh)</option>
+                                <option value="23.4607,91.1809,Cumilla,কুমিল্লা">কুমিল্লা (Cumilla)</option>
+                                <option value="21.4272,92.0058,Cox's Bazar,কক্সবাজার">কক্সবাজার (Cox's Bazar)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Reverse geocoding status preview -->
+                <div id="geo-status" class="hidden text-[11px] text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl mb-2 flex items-center space-x-1.5">
+                    <i class="fa-solid fa-location-dot text-emerald-600 flex-shrink-0"></i>
+                    <span id="geo-status-text">মানচিত্রের অবস্থান শনাক্ত করা হয়েছে</span>
+                </div>
+
+                <!-- Interactive Leaflet Map for Pinning with explicit height -->
+                <div id="picker-map" class="map-container border-2 border-red-200 shadow-md mb-4 rounded-2xl overflow-hidden" style="height: 360px; width: 100%; min-height: 320px; z-index: 10;"></div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold text-gray-700 mb-1">রাস্তা / বাড়ি / ল্যান্ডমার্ক ঠিকানা *</label>
+                        {{ form.address }}
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">মহল্লা / এলাকা *</label>
+                        {{ form.area }}
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">থানা *</label>
+                        {{ form.thana }}
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">শহর / জেলা</label>
+                        {{ form.city }}
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1">অক্ষাংশ (Latitude)</label>
+                            {{ form.latitude }}
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1">দ্রাঘিমাংশ (Longitude)</label>
+                            {{ form.longitude }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
+                <a href="{% url 'home' %}" class="text-xs text-gray-500 hover:underline">বাতিল করুন</a>
+                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-3.5 rounded-xl transition shadow text-sm flex items-center space-x-2">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span>পুলিশ যাচাইকরণের জন্য রিপোর্ট পেশ করুন</span>
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const latInput = document.getElementById('id_latitude');
+    const lonInput = document.getElementById('id_longitude');
+    const addressInput = document.querySelector('input[name="address"]');
+    const thanaInput = document.querySelector('input[name="thana"]');
+    const areaInput = document.querySelector('input[name="area"]');
+    const cityInput = document.querySelector('input[name="city"]');
+    const geoStatus = document.getElementById('geo-status');
+    const geoStatusText = document.getElementById('geo-status-text');
+
+    let initialLat = (latInput && parseFloat(latInput.value)) ? parseFloat(latInput.value) : 23.7500;
+    let initialLon = (lonInput && parseFloat(lonInput.value)) ? parseFloat(lonInput.value) : 90.3800;
+
+    // Initialize Map with OpenStreetMap tiles (standard reliable provider)
+    const map = L.map('picker-map', {
+        scrollWheelZoom: true,
+        zoomControl: true
+    }).setView([initialLat, initialLon], 14);
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    // Staggered size invalidation so Leaflet renders perfectly on all screen loads
+    setTimeout(() => map.invalidateSize(), 100);
+    setTimeout(() => map.invalidateSize(), 500);
+    setTimeout(() => map.invalidateSize(), 1200);
+    window.addEventListener('resize', () => map.invalidateSize());
+
+    // Custom High-Visibility Emergency Pin Icon (pure vector SVG/FontAwesome, immune to missing PNGs)
+    const customPinIcon = L.divIcon({
+        className: 'aponjon-map-pin',
+        html: `
+            <div style="position: relative; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); cursor: grab;">
+                <div style="width: 32px; height: 32px; background: #dc2626; border: 2.5px solid #ffffff; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); display: flex; align-items: center; justify-content: center;">
+                    <i class="fa-solid fa-location-dot text-white text-xs" style="transform: rotate(45deg);"></i>
+                </div>
+            </div>
+        `,
+        iconSize: [38, 38],
+        iconAnchor: [19, 36],
+        popupAnchor: [0, -36]
+    });
+
+    let marker = L.marker([initialLat, initialLon], {
+        draggable: true,
+        icon: customPinIcon
+    }).addTo(map);
+
+    marker.bindPopup("<div class='text-xs font-bold text-red-600'>পিনটি টেনে বা মানচিত্রে ক্লিক করে অবস্থান নির্ধারণ করুন</div>").openPopup();
+
+    function updateCoords(lat, lon, fetchReverse = true) {
+        if (latInput) latInput.value = lat.toFixed(5);
+        if (lonInput) lonInput.value = lon.toFixed(5);
+        if (fetchReverse) {
+            reverseGeocode(lat, lon);
+        }
+    }
+
+    // Free OpenStreetMap Reverse Geocoding
+    function reverseGeocode(lat, lon) {
+        if (geoStatus && geoStatusText) {
+            geoStatus.classList.remove('hidden');
+            geoStatusText.innerHTML = '<i class="fa-solid fa-spinner animate-spin mr-1"></i>ঠিকানা শনাক্ত করা হচ্ছে...';
+        }
+
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`, {
+            headers: { 'Accept-Language': 'bn, en' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.address) {
+                const addr = data.address;
+                const road = addr.road || addr.pedestrian || addr.street || '';
+                const suburb = addr.suburb || addr.neighbourhood || addr.residential || '';
+                const thana = addr.suburb || addr.city_district || addr.county || addr.town || '';
+                const city = addr.city || addr.state || 'Dhaka';
+
+                if (areaInput && !areaInput.value) {
+                    areaInput.value = suburb || road || thana;
+                }
+                if (thanaInput && !thanaInput.value) {
+                    thanaInput.value = thana || suburb;
+                }
+                if (cityInput && (!cityInput.value || cityInput.value === 'Dhaka')) {
+                    cityInput.value = city;
+                }
+                if (addressInput && !addressInput.value && road) {
+                    addressInput.value = road + (suburb ? ', ' + suburb : '');
+                }
+
+                if (geoStatus && geoStatusText) {
+                    const placeName = suburb || road || thana || 'লোকেশন সেট হয়েছে';
+                    geoStatusText.innerHTML = `<span><strong>শনাক্ত এলাকা:</strong> ${placeName} (${lat.toFixed(4)}, ${lon.toFixed(4)})</span>`;
+                }
+            }
+        })
+        .catch(() => {
+            if (geoStatus && geoStatusText) {
+                geoStatusText.innerHTML = `<span>লোকেশন সেট হয়েছে: ${lat.toFixed(4)}, ${lon.toFixed(4)}</span>`;
+            }
+        });
+    }
+
+    marker.on('dragend', function () {
+        const pos = marker.getLatLng();
+        updateCoords(pos.lat, pos.lng, true);
+    });
+
+    map.on('click', function (e) {
+        marker.setLatLng(e.latlng);
+        updateCoords(e.latlng.lat, e.latlng.lng, true);
+    });
+
+    // Geocoding Search functionality
+    const searchInput = document.getElementById('map-search-input');
+    const searchBtn = document.getElementById('map-search-btn');
+
+    function executeMapSearch() {
+        const q = (searchInput ? searchInput.value : '').trim();
+        if (!q) return;
+
+        searchBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i>';
+        
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&countrycodes=bd&limit=1&q=${encodeURIComponent(q)}`, {
+            headers: { 'Accept-Language': 'bn, en' }
+        })
+        .then(res => res.json())
+        .then(results => {
+            searchBtn.innerHTML = '<i class="fa-solid fa-magnifying-glass text-xs"></i><span>খুঁজুন</span>';
+            if (results && results.length > 0) {
+                const item = results[0];
+                const lat = parseFloat(item.lat);
+                const lon = parseFloat(item.lon);
+                map.flyTo([lat, lon], 16);
+                marker.setLatLng([lat, lon]);
+                updateCoords(lat, lon, false);
+
+                if (areaInput) areaInput.value = q;
+                if (geoStatus && geoStatusText) {
+                    geoStatus.classList.remove('hidden');
+                    geoStatusText.innerHTML = `<span>মানচিত্রে পাওয়া গেছে: ${item.display_name.split(',').slice(0, 3).join(', ')}</span>`;
+                }
+            } else {
+                alert('এই স্থানটি মানচিত্রে পাওয়া যায়নি। অনুগ্রহ করে বানান যাচাই করুন অথবা মানচিত্রে সরাসরি ক্লিক করে পিন বসান।');
+            }
+        })
+        .catch(() => {
+            searchBtn.innerHTML = '<i class="fa-solid fa-magnifying-glass text-xs"></i><span>খুঁজুন</span>';
+            alert('সার্চ সংযোগে সমস্যা হয়েছে। অনুগ্রহ করে মানচিত্রে সরাসরি ক্লিক করে পিন বসান।');
+        });
+    }
+
+    if (searchBtn) searchBtn.addEventListener('click', executeMapSearch);
+    if (searchInput) {
+        searchInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                executeMapSearch();
+            }
+        });
+    }
+
+    // GPS Auto detect
+    const gpsBtn = document.getElementById('detect-gps-btn');
+    if (gpsBtn && navigator.geolocation) {
+        gpsBtn.addEventListener('click', function () {
+            gpsBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin mr-1"></i>খোঁজা হচ্ছে...';
+            navigator.geolocation.getCurrentPosition(function (pos) {
+                const lat = pos.coords.latitude;
+                const lon = pos.coords.longitude;
+                map.flyTo([lat, lon], 16);
+                marker.setLatLng([lat, lon]);
+                updateCoords(lat, lon, true);
+                gpsBtn.innerHTML = '<i class="fa-solid fa-check text-emerald-300 mr-1"></i>লোকেশন প্রাপ্ত!';
+                setTimeout(() => {
+                    gpsBtn.innerHTML = '<i class="fa-solid fa-crosshairs"></i><span class="hidden md:inline">বর্তমান</span> <span>লোকেশন</span>';
+                }, 3000);
+            }, function (err) {
+                alert('লোকেশন পাওয়ার অনুমতি পাওয়া যায়নি। অনুগ্রহ করে ডিভাইসে লোকেশন অন করুন অথবা মানচিত্রে সরাসরি ক্লিক করে পিন বসান।');
+                gpsBtn.innerHTML = '<i class="fa-solid fa-crosshairs"></i><span class="hidden md:inline">বর্তমান</span> <span>লোকেশন</span>';
+            });
+        });
+    }
+
+    // Quick thana jump
+    const thanaJump = document.getElementById('quick-thana-jump');
+    if (thanaJump) {
+        thanaJump.addEventListener('change', function () {
+            if (!this.value) return;
+            const parts = this.value.split(',');
+            const lat = parseFloat(parts[0]);
+            const lon = parseFloat(parts[1]);
+            const thanaBn = parts[3];
+
+            map.flyTo([lat, lon], 15);
+            marker.setLatLng([lat, lon]);
+            updateCoords(lat, lon, false);
+
+            if (thanaInput) thanaInput.value = thanaBn;
+            if (areaInput && !areaInput.value) areaInput.value = thanaBn;
+            if (geoStatus && geoStatusText) {
+                geoStatus.classList.remove('hidden');
+                geoStatusText.innerHTML = `<span><strong>নির্বাচিত এলাকা:</strong> ${thanaBn} (${lat.toFixed(4)}, ${lon.toFixed(4)})</span>`;
+            }
+        });
+    }
+
+    // DateTime-Local and Bangladesh Timezone Sync for Last Seen Time
+    const lastSeenInput = document.getElementById('id_lastSeenTime');
+    const btnCaseNow = document.getElementById('btn-case-now');
+    const caseTimeText = document.getElementById('case-time-text');
+
+    function formatForDatetimeLocal(d) {
+        const pad = (n) => String(n).padStart(2, '0');
+        const year = d.getFullYear();
+        const month = pad(d.getMonth() + 1);
+        const day = pad(d.getDate());
+        const hours = pad(d.getHours());
+        const minutes = pad(d.getMinutes());
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
+    function updateCaseTimePreview(val) {
+        if (!val) {
+            caseTimeText.innerHTML = "সময় অঞ্চল: বাংলাদেশ সময় (Asia/Dhaka, GMT+6)";
+            return;
+        }
+        try {
+            const d = new Date(val);
+            if (!isNaN(d.getTime())) {
+                const bdDateStr = d.toLocaleString('bn-BD', {
+                    timeZone: 'Asia/Dhaka',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                });
+                caseTimeText.innerHTML = `<span><strong>নির্বাচিত সময়:</strong> ${bdDateStr} (বাংলাদেশ সময়)</span>`;
+            }
+        } catch(e) {
+            caseTimeText.innerHTML = "সময় অঞ্চল: বাংলাদেশ সময় (Asia/Dhaka, GMT+6)";
+        }
+    }
+
+    if (lastSeenInput) {
+        // Auto-fill with user's current device time if empty
+        if (!lastSeenInput.value) {
+            lastSeenInput.value = formatForDatetimeLocal(new Date());
+        }
+        updateCaseTimePreview(lastSeenInput.value);
+
+        lastSeenInput.addEventListener('change', function () {
+            updateCaseTimePreview(this.value);
+        });
+        lastSeenInput.addEventListener('input', function () {
+            updateCaseTimePreview(this.value);
+        });
+    }
+
+    if (btnCaseNow && lastSeenInput) {
+        btnCaseNow.addEventListener('click', function () {
+            lastSeenInput.value = formatForDatetimeLocal(new Date());
+            updateCaseTimePreview(lastSeenInput.value);
+            btnCaseNow.classList.add('bg-emerald-100', 'text-emerald-900', 'border-emerald-300');
+            btnCaseNow.innerHTML = '<i class="fa-solid fa-check text-emerald-600 mr-1"></i>বর্তমান সময় সেট হয়েছে';
+            setTimeout(() => {
+                btnCaseNow.classList.remove('bg-emerald-100', 'text-emerald-900', 'border-emerald-300');
+                btnCaseNow.innerHTML = '<i class="fa-solid fa-clock text-red-600"></i><span>🕒 বর্তমান সময় দিন</span>';
+            }, 2500);
+        });
+    }
+});
+</script>
+{% endblock %}

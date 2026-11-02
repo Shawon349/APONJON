@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}পোস্ট মুছে ফেলা নিশ্চিতকরণ - কেস #{{ case.caseID }} - আপনজন{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-12 max-w-xl">
+    <div class="bg-white rounded-3xl p-6 sm:p-10 shadow-2xl border border-red-100 text-center relative overflow-hidden">
+        <!-- Top alert accent -->
+        <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-red-600 via-rose-500 to-red-600"></div>
+
+        <div class="w-16 h-16 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-3xl mx-auto mb-4 shadow-inner">
+            <i class="fa-solid fa-trash-can"></i>
+        </div>
+
+        <span class="inline-block bg-red-50 text-red-700 text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full border border-red-200 mb-2">
+            পোস্ট অপসারণ সতর্কতা
+        </span>
+
+        <h1 class="text-2xl font-black text-gray-900 mb-2">আপনি কি নিশ্চিত যে পোস্টটি মুছে ফেলতে চান?</h1>
+        <p class="text-xs text-gray-500 mb-6 leading-relaxed max-w-md mx-auto">
+            এই পোস্টটি মুছে ফেললে কেস সম্পর্কিত বিবরণ, আপলোডকৃত ছবি এবং নাগরিকদের পাঠানো সকল প্রত্যক্ষদর্শী ক্লু স্থায়ীভাবে অপসারিত হবে।
+        </p>
+
+        <!-- Mini Case Dossier Preview -->
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 mb-6 flex items-center space-x-4 text-left">
+            <div class="w-16 h-16 rounded-xl overflow-hidden bg-slate-200 border border-slate-300 flex-shrink-0">
+                <img src="{{ case.display_photo }}" alt="{{ case.fullName }}" class="w-full h-full object-cover">
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center space-x-2">
+                    <span class="font-mono text-xs font-bold text-gray-400">কেস #{{ case.caseID }}</span>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full {% if case.caseStatus == 'PENDING' %}bg-amber-100 text-amber-800{% else %}bg-slate-200 text-slate-700{% endif %}">
+                        {{ case.get_caseStatus_display }}
+                    </span>
+                </div>
+                <h3 class="font-black text-gray-900 text-base truncate">{{ case.fullName }}</h3>
+                <p class="text-xs text-gray-500">
+                    {{ case.age }} বছর • {{ case.gender }} • <i class="fa-solid fa-location-dot text-red-500 text-[10px]"></i> {{ case.location.area }}, {{ case.location.thana }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Action Form -->
+        <form method="POST" action="{% url 'cases:case_delete' case.caseID %}" class="flex flex-col sm:flex-row gap-3 justify-center items-center">
+            {% csrf_token %}
+            <a href="{% url 'cases:case_detail' case.caseID %}" class="w-full sm:w-auto px-6 py-3 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100 font-bold text-xs transition">
+                <i class="fa-solid fa-arrow-left mr-1.5"></i> ফিরে যান (বাতিল)
+            </a>
+            <button type="submit" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shadow-lg shadow-red-600/30 transition flex items-center justify-center space-x-1.5">
+                <i class="fa-solid fa-trash-can"></i>
+                <span>হ্যাঁ, স্থায়ীভাবে মুছে ফেলুন</span>
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

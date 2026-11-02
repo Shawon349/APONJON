@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}পুলিশ ভেরিফিকেশন তালিকা - আপনজন{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8 flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-black text-gray-900">পুলিশ ভেরিফিকেশন ডেস্ক</h1>
+            <p class="text-xs text-gray-500 mt-1">গুজব প্রতিরোধে নাগরিকদের দাখিলকৃত রিপোর্ট যাচাই করে সত্যতা নিশ্চিত (Verified) করুন</p>
+        </div>
+        <a href="{% url 'accounts:officer_dashboard' %}" class="text-xs text-blue-700 font-bold hover:underline">
+            ← অফিসার ড্যাশবোর্ড
+        </a>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
+        {% if pending_checks %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 text-slate-600 uppercase text-[10px] tracking-wider border-b border-gray-200">
+                    <tr>
+                        <th class="py-3.5 px-4">কেস নং</th>
+                        <th class="py-3.5 px-4">নিখোঁজ ব্যক্তি</th>
+                        <th class="py-3.5 px-4">বয়স / লিঙ্গ</th>
+                        <th class="py-3.5 px-4">সর্বশেষ দেখার স্থান</th>
+                        <th class="py-3.5 px-4">বর্তমান অবস্থা</th>
+                        <th class="py-3.5 px-4">আবেদনকারীর তথ্য</th>
+                        <th class="py-3.5 px-4 text-right">পদক্ষেপ</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for item in pending_checks %}
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3.5 px-4 font-mono font-bold">#{{ item.case.caseID }}</td>
+                        <td class="py-3.5 px-4">
+                            <div class="font-bold text-gray-900">{{ item.case.fullName }}</div>
+                            <div class="text-[10px] text-gray-400">দাখিল: {{ item.case.created_at|timesince }} আগে</div>
+                        </td>
+                        <td class="py-3.5 px-4">{{ item.case.age }} বছর • {{ item.case.gender }}</td>
+                        <td class="py-3.5 px-4">{{ item.case.location.area }}, {{ item.case.location.thana }}</td>
+                        <td class="py-3.5 px-4">
+                            <span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-[10px]">
+                                পুলিশ যাচাই অপেক্ষমাণ
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <div class="font-bold text-gray-800">{{ item.case.reporter.user.get_full_name|default:item.case.reporter.user.username }}</div>
+                            <div class="text-[10px] text-gray-500">{{ item.case.reporter.relation|default:item.case.reporter.reporterType }} • এনআইডি: {{ item.case.reporter.nidNumber|default:"নেই" }}</div>
+                        </td>
+                        <td class="py-3.5 px-4 text-right">
+                            <a href="{% url 'verification:verify_case' item.case.caseID %}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition inline-flex items-center space-x-1 shadow">
+                                <i class="fa-solid fa-shield-halved"></i>
+                                <span>ভেরিফাই করুন</span>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-16 text-center text-xs text-gray-400">
+            <i class="fa-solid fa-clipboard-check text-4xl mb-2 text-emerald-500 block"></i>
+            বর্তমানে যাচাইয়ের অপেক্ষায় কোনো কেস নেই।
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

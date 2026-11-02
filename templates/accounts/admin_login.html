@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}অ্যাডমিনিস্ট্রেটর পোর্টাল - আপনজন (Aponjon){% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-12 flex justify-center">
+    <div class="w-full max-w-md bg-slate-900 text-white rounded-3xl shadow-2xl border border-slate-800 p-8 relative overflow-hidden">
+        <!-- Glow top -->
+        <div class="absolute -right-10 -top-10 w-40 h-40 bg-red-600/20 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div class="text-center mb-8 relative z-10">
+            <div class="w-14 h-14 bg-red-600/20 border border-red-500/30 text-red-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl shadow-inner">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <div class="inline-block bg-red-950/80 text-red-400 border border-red-800/50 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full mb-2">
+                সুরক্ষিত অ্যাডমিন কনসোল
+            </div>
+            <h2 class="text-2xl font-black text-white">অ্যাডমিন পোর্টালে প্রবেশ</h2>
+            <p class="text-xs text-slate-400 mt-1">কেস অনুমোদন, জিডি বাতিল ও সমগ্র প্ল্যাটফর্ম নিয়ন্ত্রণ</p>
+        </div>
+
+        <form method="POST" class="space-y-4 relative z-10">
+            {% csrf_token %}
+            <div>
+                <label class="block text-xs font-bold text-slate-300 uppercase mb-1">অ্যাডমিন ইউজারনেম *</label>
+                <div class="relative">
+                    <i class="fa-solid fa-user absolute left-3.5 top-3.5 text-slate-500 text-sm"></i>
+                    <input type="text" name="username_or_email" value="{{ form.username_or_email.value|default:'' }}" required placeholder="Shawon" class="w-full pl-10 pr-4 py-2.5 bg-slate-800 border border-slate-700 text-white rounded-xl text-sm focus:ring-2 focus:ring-red-500 outline-none">
+                </div>
+            </div>
+
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <label class="block text-xs font-bold text-slate-300 uppercase">পাসওয়ার্ড *</label>
+                    <a href="{% url 'accounts:reset_password' %}" class="text-xs text-red-400 hover:text-red-300 font-bold hover:underline">
+                        পাসওয়ার্ড ভুলে গেছেন?
+                    </a>
+                </div>
+                <div class="relative">
+                    <i class="fa-solid fa-lock absolute left-3.5 top-3.5 text-slate-500 text-sm"></i>
+                    <input type="password" name="password" required placeholder="••••••••" class="w-full pl-10 pr-4 py-2.5 bg-slate-800 border border-slate-700 text-white rounded-xl text-sm focus:ring-2 focus:ring-red-500 outline-none">
+                </div>
+            </div>
+
+            {% if form.non_field_errors %}
+            <div class="bg-red-900/40 text-red-300 text-xs p-3 rounded-xl border border-red-700/50">
+                {{ form.non_field_errors.0 }}
+            </div>
+            {% endif %}
+
+            <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition shadow-lg hover:shadow-red-600/40 text-sm flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-right-to-bracket"></i>
+                <span>অ্যাডমিন ড্যাশবোর্ডে প্রবেশ করুন</span>
+            </button>
+        </form>
+
+        <!-- Quick 1-Click Filler for Default Admin -->
+        <div class="mt-8 pt-6 border-t border-slate-800 relative z-10">
+            <div class="text-center text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                ডিফল্ট অ্যাডমিন এক্সেস (১-ক্লিকে পূরণ করুন)
+            </div>
+            <button type="button" onclick="fillAdminCredentials('Shawon', '47K3RWJ6')" class="w-full bg-slate-800/90 hover:bg-slate-700/80 text-slate-200 font-semibold p-3 rounded-xl border border-slate-700 text-left transition flex items-center justify-between group">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-lg bg-red-600/20 text-red-400 flex items-center justify-center">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <div class="font-bold text-xs text-white">সিস্টেম সুপার অ্যাডমিন</div>
+                        <div class="text-[10px] text-slate-400 font-mono">Shawon / 47K3RWJ6</div>
+                    </div>
+                </div>
+                <span class="text-xs text-red-400 font-bold group-hover:underline">স্বয়ংক্রিয় পূরণ →</span>
+            </button>
+        </div>
+
+        <div class="mt-6 text-center text-xs text-slate-500 relative z-10">
+            নতুন অ্যাডমিন নিবন্ধন করতে চান? 
+            <a href="{% url 'accounts:register_admin' %}" class="text-red-400 font-bold hover:underline">অ্যাডমিন রেজিস্ট্রেশন</a>
+        </div>
+    </div>
+</div>
+
+<script>
+function fillAdminCredentials(user, pass) {
+    document.querySelector('input[name="username_or_email"]').value = user;
+    document.querySelector('input[name="password"]').value = pass;
+}
+</script>
+{% endblock %}
