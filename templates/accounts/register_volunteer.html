@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}স্বেচ্ছাসেবক হিসেবে যুক্ত হোন - আপনজন{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-10 flex justify-center">
+    <div class="w-full max-w-2xl bg-white rounded-3xl shadow-xl border border-gray-100 p-8 relative overflow-hidden">
+        
+        <!-- Header Banner with Volunteer Theme -->
+        <div class="mb-6 pb-5 border-b border-gray-100 flex items-center justify-between">
+            <div>
+                <span class="inline-flex items-center space-x-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full uppercase tracking-wider mb-1.5">
+                    <i class="fa-solid fa-hand-holding-heart text-emerald-600"></i>
+                    <span>কমিউনিটি ভলান্টিয়ার নেটওয়ার্ক</span>
+                </span>
+                <h2 class="text-2xl font-black text-gray-900 mt-1">স্বেচ্ছাসেবক হিসেবে যুক্ত হোন</h2>
+                <p class="text-xs text-gray-500 mt-0.5">আপনার এলাকার নিখোঁজ ব্যক্তিদের পরিবারে ফিরিয়ে দিতে ভূমিকা রাখুন</p>
+            </div>
+            <div class="w-14 h-14 bg-gradient-to-tr from-emerald-500 to-teal-400 text-white rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-emerald-500/30 flex-shrink-0">
+                <i class="fa-solid fa-hands-holding-circle"></i>
+            </div>
+        </div>
+
+        <!-- Volunteer Value Highlights -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 p-4 bg-emerald-50/60 rounded-2xl border border-emerald-100 text-xs">
+            <div class="flex items-start space-x-2">
+                <i class="fa-solid fa-bell text-emerald-600 mt-0.5"></i>
+                <span class="text-gray-700">এলাকাভিত্তিক তাৎক্ষণিক সতর্কতা পাবেন</span>
+            </div>
+            <div class="flex items-start space-x-2">
+                <i class="fa-solid fa-magnifying-glass-location text-emerald-600 mt-0.5"></i>
+                <span class="text-gray-700">মাঠপর্যায়ে তল্লাশি ও ক্লু প্রদানে সহায়তা</span>
+            </div>
+            <div class="flex items-start space-x-2">
+                <i class="fa-solid fa-shield-heart text-emerald-600 mt-0.5"></i>
+                <span class="text-gray-700">পুলিশ ও পরিবারের সাথে সমন্বিত উদ্ধার</span>
+            </div>
+        </div>
+
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">প্রথম নাম *</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}<p class="text-[11px] text-red-600 mt-1">{{ form.first_name.errors.0 }}</p>{% endif %}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">শেষ নাম *</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}<p class="text-[11px] text-red-600 mt-1">{{ form.last_name.errors.0 }}</p>{% endif %}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">ইউজারনেম (লগইনের জন্য) *</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}<p class="text-[11px] text-red-600 mt-1">{{ form.username.errors.0 }}</p>{% endif %}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">বৈধ ইমেইল ঠিকানা *</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}<p class="text-[11px] text-red-600 mt-1">{{ form.email.errors.0 }}</p>{% endif %}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">জরুরী মোবাইল নম্বর *</label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}<p class="text-[11px] text-red-600 mt-1">{{ form.phone.errors.0 }}</p>{% endif %}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">কীভাবে সাহায্য করতে চান? *</label>
+                    {{ form.volunteerSkill }}
+                </div>
+            </div>
+
+            <!-- Location Section -->
+            <div class="pt-4 border-t border-gray-100">
+                <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider mb-2 flex items-center">
+                    <i class="fa-solid fa-location-dot text-emerald-600 mr-1.5"></i>
+                    যে এলাকায় আপনি সাহায্য করতে প্রস্তুত *
+                </h3>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs text-gray-600 mb-1">মহল্লা / এলাকা *</label>
+                        {{ form.area }}
+                        {% if form.area.errors %}<p class="text-[11px] text-red-600 mt-1">{{ form.area.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-600 mb-1">থানা *</label>
+                        {{ form.thana }}
+                        {% if form.thana.errors %}<p class="text-[11px] text-red-600 mt-1">{{ form.thana.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-600 mb-1">শহর / জেলা *</label>
+                        {{ form.city }}
+                        {% if form.city.errors %}<p class="text-[11px] text-red-600 mt-1">{{ form.city.errors.0 }}</p>{% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Optional NID -->
+            <div class="pt-3">
+                <label class="block text-xs font-bold text-gray-700 mb-1">জাতীয় পরিচয়পত্র (NID) নম্বর (ঐচ্ছিক)</label>
+                {{ form.nidNumber }}
+            </div>
+
+            <!-- Passwords -->
+            <div class="pt-4 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">পাসওয়ার্ড *</label>
+                    {{ form.password }}
+                    {% if form.password.errors %}<p class="text-[11px] text-red-600 mt-1">{{ form.password.errors.0 }}</p>{% endif %}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">পাসওয়ার্ড নিশ্চিত করুন *</label>
+                    {{ form.confirm_password }}
+                    {% if form.confirm_password.errors %}<p class="text-[11px] text-red-600 mt-1">{{ form.confirm_password.errors.0 }}</p>{% endif %}
+                </div>
+            </div>
+
+            {% if form.non_field_errors %}
+            <div class="bg-red-50 text-red-700 text-xs p-3 rounded-xl border border-red-200">
+                {{ form.non_field_errors.0 }}
+            </div>
+            {% endif %}
+
+            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition shadow-lg hover:shadow-emerald-600/30 text-sm mt-4 flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-heart"></i>
+                <span>স্বেচ্ছাসেবক হিসেবে রেজিস্ট্রেশন সম্পন্ন করুন</span>
+            </button>
+        </form>
+
+        <div class="mt-6 text-center text-xs text-gray-500">
+            ইতিমধ্যে অ্যাকাউন্ট আছে? 
+            <a href="{% url 'accounts:login' %}" class="text-emerald-700 font-bold hover:underline">এখানে লগইন করুন</a>
+            <span class="mx-2">•</span>
+            পরিবারের সদস্য হিসেবে রিপোর্ট করতে চান?
+            <a href="{% url 'accounts:register_reporter' %}" class="text-red-600 font-bold hover:underline">পরিবার রেজিস্ট্রেশন</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

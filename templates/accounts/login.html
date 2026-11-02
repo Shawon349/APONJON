@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}লগইন - আপনজন{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-12 flex justify-center">
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
+        
+        <div class="text-center mb-6">
+            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h2 class="text-2xl font-black text-gray-900">আপনজন অ্যাকাউন্টে প্রবেশ</h2>
+            <p class="text-xs text-gray-500 mt-1">রিপোর্ট করতে বা পুলিশ ভেরিফিকেশন দেখতে লগইন করুন</p>
+        </div>
+
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">ইউজারনেম অথবা ইমেইল *</label>
+                {{ form.username_or_email }}
+            </div>
+
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <label class="block text-xs font-bold text-gray-700 uppercase">পাসওয়ার্ড *</label>
+                    <a href="{% url 'accounts:reset_password' %}" class="text-xs text-red-600 font-bold hover:underline">
+                        পাসওয়ার্ড ভুলে গেছেন?
+                    </a>
+                </div>
+                {{ form.password }}
+            </div>
+
+            {% if form.non_field_errors %}
+            <div class="bg-red-50 text-red-700 text-xs p-3 rounded-xl border border-red-200">
+                {{ form.non_field_errors.0 }}
+            </div>
+            {% endif %}
+
+            <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition shadow text-sm">
+                লগইন করুন
+            </button>
+        </form>
+
+        <div class="mt-8 pt-6 border-t border-gray-100 text-center text-xs text-gray-600">
+            <p class="mb-2 font-medium">আপনজন প্ল্যাটফর্মে আপনার অ্যাকাউন্ট নেই?</p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-2">
+                <a href="{% url 'accounts:register_reporter' %}" class="w-full sm:w-auto inline-flex items-center justify-center space-x-1.5 bg-slate-100 hover:bg-slate-200 text-gray-800 font-bold px-3.5 py-2 rounded-xl border border-gray-200 transition">
+                    <i class="fa-solid fa-user-plus text-red-600"></i>
+                    <span>পরিবার রেজিস্ট্রেশন</span>
+                </a>
+                <a href="{% url 'accounts:register_volunteer' %}" class="w-full sm:w-auto inline-flex items-center justify-center space-x-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold px-3.5 py-2 rounded-xl border border-emerald-200 transition">
+                    <i class="fa-solid fa-hand-holding-heart text-emerald-600"></i>
+                    <span>স্বেচ্ছাসেবক হিসেবে যুক্ত হোন</span>
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+/* আপনজন (Aponjon) Custom Stylesheet */
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --primary-red: #DC2626;
+  --primary-dark: #991B1B;
+  --accent-orange: #EA580C;
+  --accent-emerald: #059669;
+}
+
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: 'Inter', 'Hind Siliguri', sans-serif;
+  background-color: #F8FAFC;
+  color: #1E293B;
+  position: relative;
+  width: 100%;
+}
+
+/* Pulsing emergency beacon */
+@keyframes pulse-emergency {
+  0% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(220, 38, 38, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+  }
+}
+
+.pulse-badge {
+  animation: pulse-emergency 2s infinite;
+}
+
+/* Bangladesh GD Seal styling */
+.gd-seal {
+  background: linear-gradient(135deg, #1E3A8A 0%, #1E40AF 100%);
+  border: 1px solid #3B82F6;
+  box-shadow: 0 2px 4px rgba(30, 58, 138, 0.2);
+}
+
+/* Map container heights & Leaflet Tile Fix */
+.map-container {
+  height: 350px;
+  width: 100%;
+  border-radius: 1rem;
+  z-index: 10;
+  background: #f1f5f9;
+}
+
+.leaflet-container img,
+.leaflet-tile-container img,
+.leaflet-tile {
+  max-width: none !important;
+  max-height: none !important;
+  box-shadow: none !important;
+}
+
+.leaflet-container {
+  font-family: inherit;
+  z-index: 10;
+  width: 100%;
+}

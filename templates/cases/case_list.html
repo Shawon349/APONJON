@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}নিখোঁজ ব্যক্তিদের তালিকা - আপনজন{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6">
+        <h1 class="text-2xl sm:text-3xl font-black text-gray-900">নিখোঁজ ব্যক্তিদের অনুসন্ধান ডিরেক্টরি</h1>
+        <p class="text-xs text-gray-500 mt-1">বাংলাদেশের বিভিন্ন থানা এলাকার নিখোঁজ ব্যক্তিদের রিয়েল-টাইম তালিকা</p>
+    </div>
+
+    <!-- Filters Bar -->
+    <form action="{% url 'cases:case_list' %}" method="GET" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 mb-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 items-center">
+        <div class="md:col-span-2">
+            <input type="text" name="q" value="{{ query }}" placeholder="নাম, শারীরিক গঠন বা পোশাকের বিবরণ লিখুন..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-red-500 outline-none">
+        </div>
+        <div>
+            <select name="status" class="w-full px-3 py-2.5 bg-slate-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-red-500 outline-none">
+                <option value="">সকল ধরণের অবস্থা</option>
+                {% if is_admin %}
+                <option value="PENDING" {% if status_filter == 'PENDING' %}selected{% endif %}>অপেক্ষমাণ পোস্ট (Pending Admin Review)</option>
+                {% endif %}
+                <option value="SEARCHING" {% if status_filter == 'SEARCHING' %}selected{% endif %}>অনুসন্ধান চলছে</option>
+                <option value="SIGHTED" {% if status_filter == 'SIGHTED' %}selected{% endif %}>তথ্য পাওয়া গেছে</option>
+                <option value="FOUND" {% if status_filter == 'FOUND' %}selected{% endif %}>উদ্ধারকৃত</option>
+                <option value="REUNITED" {% if status_filter == 'REUNITED' %}selected{% endif %}>পরিবারে প্রত্যাবর্তন (আর্কাইভকৃত)</option>
+            </select>
+        </div>
+        <div>
+            <select name="urgency" class="w-full px-3 py-2.5 bg-slate-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-red-500 outline-none">
+                <option value="">সকল অগ্রাধিকার</option>
+                <option value="CRITICAL" {% if urgency_filter == 'CRITICAL' %}selected{% endif %}>জরুরী সর্বোচ্চ ঝুঁকি (শিশু, প্রবীণ ও নারী)</option>
+                <option value="HIGH" {% if urgency_filter == 'HIGH' %}selected{% endif %}>উচ্চ অগ্রাধিকার (নারী / তরুণ / জরুরী চিকিৎসা)</option>
+                <option value="MEDIUM" {% if urgency_filter == 'MEDIUM' %}selected{% endif %}>সাধারণ অগ্রাধিকার</option>
+            </select>
+        </div>
+        <div>
+            <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow flex items-center justify-center space-x-1.5">
+                <i class="fa-solid fa-filter"></i>
+                <span>ফিল্টার করুন</span>
+            </button>
+        </div>
+    </form>
+
+    <!-- Cases Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for c in cases %}
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition flex flex-col">
+            <!-- Header bar -->
+            <div class="px-4 py-2.5 bg-slate-50 border-b border-gray-100 flex items-center justify-between text-xs">
+                <span class="font-bold text-gray-500 font-mono">কেস #{{ c.caseID }}</span>
+                {% if c.caseStatus == 'PENDING' %}
+                <span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full text-[11px] flex items-center space-x-1 border border-amber-300">
+                    <i class="fa-solid fa-hourglass-half text-amber-600 animate-pulse"></i>
+                    <span>অনুমোদন অপেক্ষমাণ (Admin Only)</span>
+                </span>
+                {% elif c.caseStatus == 'SEARCHING' %}
+                <span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full text-[11px] flex items-center space-x-1">
+                    <span class="w-1.5 h-1.5 bg-red-600 rounded-full animate-ping"></span>
+                    <span>অনুসন্ধান চলছে</span>
+                </span>
+                {% elif c.caseStatus == 'SIGHTED' %}
+                <span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full text-[11px] flex items-center space-x-1">
+                    <i class="fa-solid fa-eye text-amber-600"></i>
+                    <span>তথ্য প্রাপ্ত</span>
+                </span>
+                {% elif c.caseStatus in 'REUNITED,FOUND' %}
+                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full text-[11px] flex items-center space-x-1">
+                    <i class="fa-solid fa-lock text-emerald-600"></i>
+                    <span>উদ্ধারকৃত (সুরক্ষিত)</span>
+                </span>
+                {% else %}
+                <span class="bg-gray-100 text-gray-600 font-bold px-2 py-0.5 rounded-full text-[11px]">
+                    {{ c.get_caseStatus_display }}
+                </span>
+                {% endif %}
+            </div>
+
+            <div class="p-5 flex-grow flex flex-col">
+                <div class="flex space-x-3.5 mb-3">
+                    <img src="{{ c.display_photo }}" alt="{{ c.fullName }}" class="w-20 h-20 rounded-2xl object-cover bg-slate-100 border border-gray-200 flex-shrink-0">
+                    <div class="flex-1">
+                        <h3 class="font-black text-gray-900 text-base leading-tight">{{ c.fullName }}</h3>
+                        <div class="text-xs text-gray-500 mt-0.5">{{ c.gender }}, {{ c.age }} বছর</div>
+                        <div class="text-xs text-slate-600 mt-1 flex items-center">
+                            <i class="fa-solid fa-location-dot text-red-500 text-[10px] mr-1"></i>
+                            <span class="truncate">{{ c.location.area }}, {{ c.location.thana }}</span>
+                        </div>
+                        {% if c.is_verified or c.gd_number %}
+                        <div class="inline-flex items-center space-x-1 bg-emerald-100 border border-emerald-300 text-emerald-800 text-[10px] font-black px-2 py-0.5 rounded-md shadow-xs mt-1">
+                            <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                            <span>Verified</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if c.medicalConditions %}
+                <div class="text-[11px] text-red-700 bg-red-50 p-2 rounded-xl mb-2">
+                    <strong>স্বাস্থ্য ঝুঁকি:</strong> {{ c.medicalConditions|truncatechars:65 }}
+                </div>
+                {% endif %}
+
+                <div class="text-xs text-gray-600 line-clamp-2 mb-3 bg-slate-50 p-2.5 rounded-xl">
+                    <strong>পোশাক:</strong> {{ c.clothingDetails|default:"সাধারণ পোশাক" }}
+                </div>
+
+                <div class="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between text-xs">
+                    <span class="text-gray-400 font-medium"><i class="fa-regular fa-clock mr-1"></i>{{ c.lastSeenTime|timesince }} আগে</span>
+                    <div class="flex items-center space-x-2">
+                        {% if user.is_authenticated and c.reporter.user == user or is_admin %}
+                        <a href="{% url 'cases:case_delete' c.caseID %}" class="text-red-500 hover:text-red-700 font-bold p-1 transition" title="পোস্টটি মুছে ফেলুন" onclick="return confirm('আপনি কি নিশ্চিত যে পোস্টটি মুছে ফেলতে চান?')">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'cases:case_detail' c.caseID %}" class="font-bold text-red-600 hover:text-red-700">
+                            বিস্তারিত দেখুন →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-3 text-center py-16 text-gray-400 bg-white rounded-3xl border border-gray-100">
+            <i class="fa-regular fa-folder-open text-4xl mb-2 text-gray-300 block"></i>
+            আপনার অনুসন্ধানের সাথে কোনো কেস মিলছে না।
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

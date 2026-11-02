@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="bn" class="overflow-x-hidden">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>{% block title %}আপনজন - নিখোঁজ ব্যক্তি দ্রুত অনুসন্ধান ও সতর্কতা প্ল্যাটফর্ম{% endblock %}</title>
+    <!-- Google Fonts: Hind Siliguri -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 6 CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/custom.css">
+    <style>
+        body {
+            font-family: 'Hind Siliguri', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        /* Leaflet + Tailwind CSS tile rendering fix */
+        .leaflet-container img, .leaflet-tile-container img, .leaflet-tile {
+            max-width: none !important;
+            max-height: none !important;
+            box-shadow: none !important;
+        }
+        .leaflet-container {
+            font-family: inherit;
+            z-index: 10;
+            width: 100%;
+            background: #e2e8f0;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen overflow-x-hidden w-full relative">
+
+    <!-- Top Emergency Ribbon -->
+    <div class="bg-gradient-to-r from-red-800 via-red-700 to-rose-800 text-white text-[11px] sm:text-xs py-1 px-3 sm:py-1.5 sm:px-4 font-medium shadow-inner overflow-hidden w-full border-b border-red-900/40">
+        <div class="container mx-auto flex items-center justify-between flex-wrap gap-1.5 sm:gap-2">
+            <div class="flex items-center space-x-1.5 sm:space-x-2 min-w-0">
+                <span class="inline-block w-2 h-2 bg-yellow-400 rounded-full animate-ping flex-shrink-0"></span>
+                <span class="truncate sm:overflow-visible text-[11px] sm:text-xs">
+                    <strong class="text-amber-200">জরুরী নেটওয়ার্ক:</strong> দ্রুত এলাকাভিত্তিক সন্ধান ও পুলিশ ভেরিফিকেশন
+                </span>
+            </div>
+            <!-- Click-to-Call Emergency Badges (Crystal clear bold font & phone dialer links) -->
+            <div class="flex items-center space-x-2 text-[10px] sm:text-xs flex-shrink-0 font-bold">
+                <a href="tel:999" title="বাংলাদেশ জাতীয় জরুরি সেবা ৯৯৯ এ সরাসরি কল করুন" class="inline-flex items-center space-x-1 bg-red-950/80 hover:bg-black/60 px-2 py-0.5 rounded-lg border border-red-400/50 text-amber-200 hover:text-white transition shadow-sm">
+                    <i class="fa-solid fa-phone text-[9px] text-yellow-300"></i>
+                    <span>জরুরি: <span class="font-mono font-black tracking-wider text-white">৯৯৯</span></span>
+                </a>
+                <a href="tel:1098" title="বাংলাদেশ জাতীয় শিশু সহায়তা হেল্পলাইন ১০৯৮ (টোল-ফ্রি ২৪ ঘণ্টা)" class="inline-flex items-center space-x-1 bg-red-950/80 hover:bg-black/60 px-2 py-0.5 rounded-lg border border-red-400/50 text-amber-200 hover:text-white transition shadow-sm">
+                    <i class="fa-solid fa-shield-halved text-[10px] text-amber-300"></i>
+                    <span>শিশু হেল্পলাইন: <span class="font-mono font-black tracking-wider text-white">১০৯৮</span></span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="bg-white border-b border-gray-100 sticky top-0 z-40 shadow-sm w-full">
+        <div class="container mx-auto px-2 sm:px-6 py-2 sm:py-3 flex items-center justify-between gap-1 sm:gap-2">
+            <!-- Brand Logo for Aponjon (Bangla only) -->
+            <a href="{% url 'home' %}" class="flex items-center space-x-1.5 sm:space-x-3 group flex-shrink-0">
+                <div class="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-rose-600 via-red-600 to-amber-500 flex items-center justify-center text-white text-sm sm:text-xl shadow-md shadow-rose-500/20 group-hover:scale-105 transition transform flex-shrink-0">
+                    <i class="fa-solid fa-people-roof"></i>
+                </div>
+                <div>
+                    <div class="text-base sm:text-2xl font-black tracking-tight text-gray-900 flex items-center notranslate" translate="no">
+                        <span class="text-rose-600 mr-0.5">আপন</span><span class="text-gray-900">জন</span>
+                        <span class="hidden sm:inline-block ml-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full">সন্ধান পোর্টাল</span>
+                    </div>
+                    <p class="hidden md:block text-[10px] font-semibold text-gray-500 -mt-0.5 tracking-tight">পরিবারের কাছে ফিরিয়ে দিন প্রিয়জনকে</p>
+                </div>
+            </a>
+
+            <!-- Desktop Search / Quick Nav Links -->
+            <nav class="hidden lg:flex items-center space-x-2 xl:space-x-4 text-xs xl:text-sm font-bold text-gray-600">
+                <a href="{% url 'home' %}" class="bg-rose-50 text-rose-600 px-3.5 py-1.5 rounded-full transition shadow-xs">
+                    হোম
+                </a>
+                <a href="{% url 'cases:case_list' %}" class="hover:text-rose-600 px-2.5 py-1.5 rounded-full transition">
+                    নিখোঁজ স্বজনদের তালিকা
+                </a>
+                <a href="{% url 'cases:case_create' %}" class="hover:text-rose-600 px-2.5 py-1.5 rounded-full transition">
+                    নিখোঁজ রিপোর্ট করুন
+                </a>
+                <a href="{% url 'cases:case_list' %}?urgency=CRITICAL" class="hover:text-rose-600 px-2.5 py-1.5 rounded-full transition">
+                    জরুরি এলার্ট
+                </a>
+                <a href="{% url 'accounts:register_volunteer' %}" class="hover:text-rose-600 px-2.5 py-1.5 rounded-full transition">
+                    স্বেচ্ছাসেবক হোন
+                </a>
+                <a href="{% url 'home' %}#about-section" class="hover:text-rose-600 px-2.5 py-1.5 rounded-full transition">
+                    আমাদের সম্পর্কে
+                </a>
+                {% if user.is_authenticated %}
+                <a href="{% url 'cases:my_cases' %}" class="hover:text-rose-600 px-2.5 py-1.5 rounded-full transition">
+                    আমার রিপোর্ট
+                </a>
+                {% endif %}
+            </nav>
+
+            <!-- Actions / Auth Area (Optimized for Android & Mobile) -->
+            <div class="flex items-center space-x-1 sm:space-x-2.5 flex-shrink-0">
+                <!-- Quick Report CTA -->
+                <a href="{% url 'cases:case_create' %}" class="bg-red-600 hover:bg-red-700 text-white font-bold p-1.5 sm:px-3.5 sm:py-1.5 rounded-xl text-xs sm:text-sm shadow hover:shadow-red-600/30 transition flex items-center space-x-1 flex-shrink-0" title="রিপোর্ট পেশ করুন">
+                    <i class="fa-solid fa-bullhorn text-xs animate-pulse"></i>
+                    <span class="hidden md:inline">রিপোর্ট করুন</span>
+                    <span class="hidden sm:inline md:hidden text-xs">রিপোর্ট</span>
+                </a>
+
+                {% if user.is_authenticated %}
+                <!-- Notifications Bell -->
+                <div class="relative">
+                    <button id="notif-dropdown-btn" class="relative p-1.5 sm:p-2 text-gray-600 hover:text-red-600 rounded-xl hover:bg-gray-100 transition">
+                        <i class="fa-solid fa-bell text-sm sm:text-lg"></i>
+                        {% if unread_notifications_count > 0 %}
+                        <span class="absolute top-0.5 right-0.5 bg-red-600 text-white text-[9px] font-extrabold w-3.5 h-3.5 rounded-full flex items-center justify-center ring-2 ring-white">
+                            {{ unread_notifications_count }}
+                        </span>
+                        {% endif %}
+                    </button>
+                    <!-- Dropdown Panel -->
+                    <div id="notif-dropdown-menu" class="hidden absolute right-0 mt-2 w-72 sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50">
+                        <div class="px-4 py-2 border-b border-gray-100 flex items-center justify-between">
+                            <span class="font-bold text-gray-800 text-sm">সতর্কতা ও নোটিফিকেশন</span>
+                            {% if unread_notifications_count > 0 %}
+                            <a href="{% url 'notifications:mark_all_read' %}" class="text-xs text-red-600 hover:underline">সব পঠিত করুন</a>
+                            {% endif %}
+                        </div>
+                        <div class="max-h-72 overflow-y-auto divide-y divide-gray-50">
+                            {% for notif in recent_notifications %}
+                            <a href="{% url 'notifications:mark_read' notif.pk %}" class="block px-4 py-3 hover:bg-slate-50 transition {% if not notif.isRead %}bg-red-50/50{% endif %}">
+                                <div class="flex items-start space-x-3">
+                                    <div class="mt-0.5 text-xs text-red-600">
+                                        <i class="fa-solid fa-bell"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-xs font-bold text-gray-900 leading-snug">{{ notif.title }}</p>
+                                        <p class="text-[11px] text-gray-500 line-clamp-2 mt-0.5">{{ notif.message }}</p>
+                                    </div>
+                                </div>
+                            </a>
+                            {% empty %}
+                            <div class="py-6 text-center text-xs text-gray-400">
+                                <i class="fa-regular fa-bell-slash text-2xl mb-1 text-gray-300 block"></i>
+                                কোনো নতুন নোটিফিকেশন নেই
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logged In User Profile -->
+                <a href="{% url 'accounts:profile' %}" class="flex items-center space-x-1 sm:space-x-1.5 text-xs text-gray-800 font-bold bg-slate-100 hover:bg-slate-200 px-2 sm:px-2.5 py-1.5 rounded-xl border border-gray-200 transition">
+                    <div class="w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center font-bold text-[9px]">
+                        {{ user.first_name|default:user.username|make_list|first|upper }}
+                    </div>
+                    <span class="hidden md:inline max-w-[80px] truncate">{{ user.first_name|default:user.username }}</span>
+                </a>
+                <a href="{% url 'accounts:logout' %}" title="লগআউট" class="hidden sm:inline-flex text-xs text-red-600 hover:bg-red-50 font-bold p-1.5 sm:px-2 sm:py-1.5 rounded-xl border border-red-200 transition items-center space-x-1">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </a>
+
+                {% else %}
+
+                <!-- Guest Login & Registration (Always fully visible on Android & Desktop) -->
+                <a href="{% url 'accounts:login' %}" class="inline-flex items-center space-x-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold px-2 sm:px-3 py-1.5 rounded-xl transition shadow-xs flex-shrink-0 whitespace-nowrap">
+                    <i class="fa-solid fa-right-to-bracket text-rose-600 text-xs"></i>
+                    <span>লগইন</span>
+                </a>
+                <a href="{% url 'accounts:register_reporter' %}" class="inline-flex items-center space-x-1 bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-bold px-2.5 sm:px-3.5 py-1.5 rounded-xl transition shadow flex-shrink-0 whitespace-nowrap">
+                    <i class="fa-solid fa-user-plus text-xs"></i>
+                    <span>রেজিস্ট্রেশন</span>
+                </a>
+                {% endif %}
+
+                <!-- Mobile Hamburger Menu Button (Android) -->
+                <button id="mobile-menu-btn" type="button" class="lg:hidden p-1.5 sm:p-2 text-gray-700 hover:text-rose-600 rounded-xl hover:bg-gray-100 transition focus:outline-none flex-shrink-0" aria-label="মেনু খুলুন">
+                    <i class="fa-solid fa-bars text-lg sm:text-xl" id="menu-icon-bars"></i>
+                    <i class="fa-solid fa-xmark text-lg sm:text-xl hidden" id="menu-icon-x"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer Menu (Slide-Down Navigation for Android & Mobile) -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-white border-t border-gray-100 px-4 py-3 shadow-xl space-y-3">
+            <!-- Prominent Mobile Citizen Account Box -->
+            <div class="bg-gradient-to-r from-rose-50 via-slate-50 to-amber-50 p-3 rounded-2xl border border-rose-100">
+                <div class="text-xs font-bold text-gray-700 mb-2 flex items-center justify-between">
+                    <span class="flex items-center space-x-1.5">
+                        <i class="fa-solid fa-user-shield text-rose-600"></i>
+                        <span>নাগরিক অ্যাকাউন্ট</span>
+                    </span>
+                    <span class="text-[10px] text-gray-400">Android Quick Access</span>
+                </div>
+                {% if user.is_authenticated %}
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 rounded-full bg-rose-600 text-white flex items-center justify-center font-bold text-xs">
+                            {{ user.first_name|default:user.username|make_list|first|upper }}
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-900">{{ user.get_full_name|default:user.username }}</p>
+                            <p class="text-[10px] text-gray-500">লগইন করা আছে</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-1.5">
+                        <a href="{% url 'accounts:profile' %}" class="bg-white border border-gray-300 text-gray-700 font-bold text-xs px-2.5 py-1.5 rounded-xl hover:bg-gray-50 transition">প্রোফাইল</a>
+                        <a href="{% url 'accounts:logout' %}" class="bg-red-600 text-white font-bold text-xs px-2.5 py-1.5 rounded-xl hover:bg-red-700 transition">লগআউট</a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="grid grid-cols-2 gap-2">
+                    <a href="{% url 'accounts:login' %}" class="flex items-center justify-center space-x-1.5 bg-white border border-rose-200 hover:border-rose-400 text-rose-700 font-bold text-xs py-2 px-3 rounded-xl shadow-xs transition text-center">
+                        <i class="fa-solid fa-right-to-bracket text-rose-600"></i>
+                        <span>লগইন করুন</span>
+                    </a>
+                    <a href="{% url 'accounts:register_reporter' %}" class="flex items-center justify-center space-x-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs py-2 px-3 rounded-xl shadow-sm transition text-center">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>রেজিস্ট্রেশন (নতুন একাউন্ট)</span>
+                    </a>
+                </div>
+                <a href="{% url 'accounts:register_volunteer' %}" class="mt-2 w-full flex items-center justify-center space-x-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 px-3 rounded-xl shadow-sm transition text-center">
+                    <i class="fa-solid fa-hand-holding-heart"></i>
+                    <span>স্বেচ্ছাসেবক হিসেবে যুক্ত হোন</span>
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Mobile Links -->
+            <div class="space-y-1 text-xs font-bold text-gray-700">
+                <a href="{% url 'home' %}" class="flex items-center space-x-2.5 px-3 py-2 rounded-xl bg-rose-50 text-rose-600">
+                    <i class="fa-solid fa-house w-4 text-center"></i>
+                    <span>হোম</span>
+                </a>
+                <a href="{% url 'cases:case_list' %}" class="flex items-center space-x-2.5 px-3 py-2 rounded-xl hover:bg-gray-100 transition">
+                    <i class="fa-solid fa-users w-4 text-center text-gray-400"></i>
+                    <span>নিখোঁজ স্বজনদের তালিকা</span>
+                </a>
+                <a href="{% url 'cases:case_create' %}" class="flex items-center space-x-2.5 px-3 py-2 rounded-xl hover:bg-gray-100 transition text-rose-600">
+                    <i class="fa-solid fa-bullhorn w-4 text-center text-rose-600"></i>
+                    <span>নিখোঁজ রিপোর্ট পেশ করুন</span>
+                </a>
+                <a href="{% url 'cases:case_list' %}?urgency=CRITICAL" class="flex items-center space-x-2.5 px-3 py-2 rounded-xl hover:bg-gray-100 transition text-amber-600">
+                    <i class="fa-solid fa-triangle-exclamation w-4 text-center text-amber-500"></i>
+                    <span>জরুরি এলার্ট</span>
+                </a>
+                <a href="{% url 'home' %}#about-section" class="flex items-center space-x-2.5 px-3 py-2 rounded-xl hover:bg-gray-100 transition">
+                    <i class="fa-solid fa-circle-info w-4 text-center text-gray-400"></i>
+                    <span>আমাদের সম্পর্কে</span>
+                </a>
+            </div>
+
+            <!-- Emergency Helpline dialers in mobile menu -->
+            <div class="pt-2 border-t border-gray-100 grid grid-cols-2 gap-2 text-[11px] font-bold">
+                <a href="tel:999" class="flex items-center justify-center space-x-1 bg-red-50 text-red-700 border border-red-200 py-1.5 rounded-xl">
+                    <i class="fa-solid fa-phone text-red-600"></i>
+                    <span>জরুরি: ৯৯৯</span>
+                </a>
+                <a href="tel:1098" class="flex items-center justify-center space-x-1 bg-amber-50 text-amber-800 border border-amber-200 py-1.5 rounded-xl">
+                    <i class="fa-solid fa-shield-halved text-amber-600"></i>
+                    <span>হেল্পলাইন: ১০৯৮</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Global Flash Messages -->
+    <div class="container mx-auto px-4 mt-3">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="auto-dismiss mb-2 px-4 py-3 rounded-xl text-sm flex items-center justify-between shadow-sm {% if message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% elif message.tags == 'success' %}bg-emerald-50 text-emerald-800 border border-emerald-200{% elif message.tags == 'warning' %}bg-amber-50 text-amber-800 border border-amber-200{% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
+                <div class="flex items-center space-x-2">
+                    {% if message.tags == 'error' %}
+                    <i class="fa-solid fa-circle-exclamation text-red-500"></i>
+                    {% elif message.tags == 'success' %}
+                    <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                    {% else %}
+                    <i class="fa-solid fa-circle-info text-blue-500"></i>
+                    {% endif %}
+                    <span class="font-medium">{{ message }}</span>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-600 text-xs">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 pt-12 pb-8 border-t border-slate-800 mt-16 text-sm">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <!-- Mission -->
+                <div class="md:col-span-2">
+                    <div class="flex items-center space-x-2 mb-3">
+                        <div class="w-8 h-8 rounded-xl bg-red-600 flex items-center justify-center text-white text-base">
+                            <i class="fa-solid fa-hands-holding-child"></i>
+                        </div>
+                        <span class="text-xl font-black text-white tracking-wide notranslate" translate="no"><span class="text-rose-500">আপন</span>জন</span>
+                    </div>
+                    <p class="text-slate-400 text-xs leading-relaxed max-w-md font-light">
+                        দেরি হওয়ার আগেই পরিবারের কাছে ফিরিয়ে দিন প্রিয়জনকে। নিখোঁজ শিশু, প্রবীণ ও হারিয়ে যাওয়া নাগরিকদের দ্রুত উদ্ধারে বাংলাদেশ পুলিশ ও এলাকাবাসীর মধ্যে সমন্বিত সতর্কতা প্ল্যাটফর্ম।
+                    </p>
+                    <div class="mt-4 flex flex-wrap gap-3 text-xs text-slate-300">
+                        <span class="flex items-center space-x-1.5"><i class="fa-solid fa-shield text-emerald-400"></i><span>পুলিশ ভেরিফায়েড (Verified)</span></span>
+                        <span class="flex items-center space-x-1.5"><i class="fa-solid fa-lock text-emerald-400"></i><span>উদ্ধারের পর গোপনীয়তা সুরক্ষা</span></span>
+                        <span class="flex items-center space-x-1.5"><i class="fa-solid fa-location-crosshairs text-red-400"></i><span>এলাকাভিত্তিক লাইভ এলার্ট</span></span>
+                    </div>
+                </div>
+
+                <!-- Quick links -->
+                <div>
+                    <h4 class="text-white font-bold text-xs uppercase tracking-wider mb-3">দ্রুত লিঙ্ক</h4>
+                    <ul class="space-y-2 text-xs">
+                        <li><a href="{% url 'home' %}" class="hover:text-white transition">মূলপাতা</a></li>
+                        <li><a href="{% url 'cases:case_list' %}" class="hover:text-white transition">নিখোঁজ ব্যক্তিদের তালিকা</a></li>
+                        <li><a href="{% url 'cases:case_create' %}" class="hover:text-white transition">নিখোঁজ রিপোর্ট পেশ করুন</a></li>
+                        <li><a href="{% url 'accounts:login' %}" class="hover:text-white transition">লগইন ও প্রোফাইল</a></li>
+                        <li><a href="{% url 'accounts:register_reporter' %}" class="hover:text-white transition">পরিবার অ্যাকাউন্ট রেজিস্ট্রেশন</a></li>
+                        <li><a href="{% url 'accounts:register_volunteer' %}" class="text-emerald-400 hover:text-white font-bold transition flex items-center space-x-1.5"><i class="fa-solid fa-hand-holding-heart"></i><span>স্বেচ্ছাসেবক হিসেবে যুক্ত হোন</span></a></li>
+                        <li><a href="{% url 'accounts:reset_password' %}" class="hover:text-white transition">পাসওয়ার্ড রিসেট</a></li>
+                        <li><a href="{% url 'home' %}#about-section" class="hover:text-white transition">আমাদের সম্পর্কে</a></li>
+                    </ul>
+                </div>
+
+                <!-- Team -->
+                <div>
+                    <h4 class="text-white font-bold text-xs uppercase tracking-wider mb-3">Project Team Aponjon</h4>
+                    <ul class="space-y-2.5 text-xs">
+                        <li class="flex items-center space-x-2">
+                            <i class="fa-solid fa-user-tag text-red-500"></i>
+                            <span class="text-slate-200 font-bold text-sm">Sumsodduha Shawon</span>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                            <i class="fa-solid fa-user-tag text-amber-500"></i>
+                            <span class="text-slate-200 font-bold text-sm">Anthalib Biswas Sufal</span>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                            <i class="fa-solid fa-user-tag text-blue-500"></i>
+                            <span class="text-slate-200 font-bold text-sm">Junayed Shahriar</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-800 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500">
+                <p>&copy; ২০২৬ <span class="notranslate font-bold text-slate-400" translate="no">আপনজন</span>. জননিরাপত্তা ও পারিবারিক মিলনের লক্ষ্যে নিবেদিত।</p>
+                <p class="mt-2 sm:mt-0 font-semibold text-slate-400">Reuniting Families Before It's Too Late.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Main JS -->
+    <script src="/static/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var menuBtn = document.getElementById('mobile-menu-btn');
+            var mobileMenu = document.getElementById('mobile-menu');
+            var iconBars = document.getElementById('menu-icon-bars');
+            var iconX = document.getElementById('menu-icon-x');
+
+            if (menuBtn && mobileMenu) {
+                menuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    mobileMenu.classList.toggle('hidden');
+                    if (iconBars && iconX) {
+                        iconBars.classList.toggle('hidden');
+                        iconX.classList.toggle('hidden');
+                    }
+                });
+            }
+        });
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
